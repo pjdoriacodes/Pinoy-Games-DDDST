@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinoy Game</title>
+   <link rel="icon" type="image/png" href="favicon.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, #1a1a2e 0%, #0f0f1c 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Press Start 2P', cursive;
+      image-rendering: pixelated;
+      overflow: hidden;
+    }
+
+    /* CRT effect */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .game-wrapper {
+      background: url("bg.png") no-repeat center center;
+      background-size: cover;
+      width: 900px;
+      height: 500px;
+      position: relative;
+      box-shadow: 0px 0px 40px #000;
+      border: 4px solid #ffcc00;
+      overflow: hidden;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      0% { box-shadow: 0 0 10px #ffcc00; }
+      100% { box-shadow: 0 0 30px #ff9900; }
+    }
+
+    .title {
+      text-align: center;
+      font-size: 48px;
+      color: #ffcc00;
+      text-shadow: 3px 3px #000, 0 0 10px #ffcc00;
+      margin-top: 30px;
+      animation: flicker 2s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.4; }
+    }
+
+    .menu {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(44, 44, 84, 0.9);
+      padding: 20px 40px;
+      border: 3px solid #fff;
+      box-shadow: inset 0px 0px 10px #000, 0px 0px 15px #000;
+      animation: popIn 1s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .menu button {
+      display: block;
+      width: 250px;
+      margin: 15px auto;
+      padding: 15px;
+      font-size: 14px;
+      color: white;
+      cursor: pointer;
+      border: 3px solid #fff;
+      text-transform: uppercase;
+      background: #e74c3c;
+      transition: transform 0.2s, box-shadow 0.2s;
+      image-rendering: pixelated;
+    }
+
+    .menu button:hover {
+      transform: scale(1.15) translateY(-4px);
+      box-shadow: 0 0 15px #fff;
+    }
+
+    .btn-start { background: #2ecc71; }  /* green */
+    .btn-how   { background: #f1c40f; color: #000; }  /* yellow */
+
+    /* footer */
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #fff;
+      text-shadow: 1px 1px #000;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+  </style>
+</head>
+<body>
+   <div class="game-wrapper" id="gameWrapper">
+    <div class="title">MATAYA-TAYA</div>
+    <div class="menu">
+      <button class="btn-start" onclick="location.href='characters.html'">▶ Start Game</button>
+      <button class="btn-how" onclick="location.href='howtoplay.html'">❔ How to Play</button>
+    </div>
+    <div class="footer">© 2025 Pinoy Game Semi-final Project</div>
+
+  </div>
+
+  
+</body>
+</html>
