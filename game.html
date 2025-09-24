@@ -436,11 +436,12 @@ function update() {
 
 /* ---------- Draw ---------- */
 function drawArrow(p, color) {
+  const offset = 1; // almost touching the head
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(p.x + p.w / 2, p.y - 20);
-  ctx.lineTo(p.x + p.w / 2 - 15, p.y - 40);
-  ctx.lineTo(p.x + p.w / 2 + 15, p.y - 40);
+  ctx.moveTo(p.x + p.w / 2, p.y - offset);               // base of arrow just above head
+  ctx.lineTo(p.x + p.w / 2 - 10, p.y - offset - 10);     // left tip
+  ctx.lineTo(p.x + p.w / 2 + 10, p.y - offset - 10);     // right tip
   ctx.closePath();
   ctx.fill();
 }
@@ -500,13 +501,25 @@ document.getElementById("changeCharBtn").addEventListener("click", () => { windo
 
 canvas.addEventListener("click", (e) => {
   const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-  if (mx >= backBtn.x && mx <= backBtn.x + backBtn.w && my >= backBtn.y && my <= backBtn.y + backBtn.h) window.location.href = "index.html";
-  if (mx >= settingsBtn.x && mx <= settingsBtn.x + settingsBtn.w && my >= settingsBtn.y && my <= settingsBtn.y + settingsBtn.h) {
-    const s = document.getElementById("settingsModal"); if (s) s.style.visibility = "visible";
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top) * scaleY;
+
+  // Back button
+  if (mx >= backBtn.x && mx <= backBtn.x + backBtn.w &&
+      my >= backBtn.y && my <= backBtn.y + backBtn.h) {
+    window.location.href = "characters.html";
+  }
+
+  // Settings button
+  if (mx >= settingsBtn.x && mx <= settingsBtn.x + settingsBtn.w &&
+      my >= settingsBtn.y && my <= settingsBtn.y + settingsBtn.h) {
+    const s = document.getElementById("settingsModal");
+    if (s) s.style.visibility = "visible";
   }
 });
+
 </script>
 
 </body>
