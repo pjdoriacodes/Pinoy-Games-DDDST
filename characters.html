@@ -237,39 +237,23 @@
     </div>
   </div>
 
-  <script>
-     window.addEventListener('load', () => {
-    const gameWrapper = document.getElementById("gameWrapper");
-    // Check if fullscreen was active on the front page
-    if (localStorage.getItem("fullscreenActive") === "true" && gameWrapper) {
-      gameWrapper.requestFullscreen().catch(err => {
-        console.log("Fullscreen error: " + err.message);
-      });
-    }
-  });
-
-  // Update localStorage if user exits fullscreen manually
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      localStorage.setItem("fullscreenActive", "false");
-    }
-  });
-
+ <script>
   const characters = [
-    {name: "JUAN", img: "1.png", stats:[160,120,100,140]},
-    {name: "JEO", img: "2.png", stats:[100,180,90,150]},
-    {name: "MARIO", img: "3.png", stats:[80,200,70,170]},
-    {name: "GELA", img: "4.png", stats:[120,160,80,130]},
-    {name: "SIMON", img: "5.png", stats:[180,90,160,100]},
-    {name: "JUNDEL", img: "6.png", stats:[170,110,130,120]},
-    {name: "JUSWA", img: "7.png", stats:[110,170,100,150]},
+    {name: "JUAN", preview: "11.png", gameImg: "1.png", stats:[160,120,100,140]},
+    {name: "JEO", preview: "22.png", gameImg: "2.png", stats:[100,180,90,150]},
+    {name: "MARIO", preview: "33.png", gameImg: "3.png", stats:[80,200,70,170]},
+    {name: "GELA", preview: "44.png", gameImg: "4.png", stats:[120,160,80,130]},
+    {name: "SIMON", preview: "55.png", gameImg: "5.png", stats:[180,90,160,100]},
+    {name: "JUNDEL", preview: "66.png", gameImg: "6.png", stats:[170,110,130,120]},
+    {name: "JUSWA", preview: "77.png", gameImg: "7.png", stats:[110,170,100,150]},
+    {name: "JUSWA", preview: "88.png", gameImg: "8.png", stats:[110,170,100,150]},
   ];
 
   let current = 0;
 
   function updateChar() {
     const c = characters[current];
-    document.getElementById("charSprite").src = c.img;
+    document.getElementById("charSprite").src = c.preview; // show preview only
     document.getElementById("charName").innerText = c.name;
     document.getElementById("stat1").style.width = c.stats[0] + "px";
     document.getElementById("stat2").style.width = c.stats[1] + "px";
@@ -287,13 +271,13 @@
     updateChar();
   }
 
- function startGame() {
-  location.href = "game.html?img=" + characters[current].img;
-}
-
+  function startGame() {
+    location.href = "game.html?img=" + characters[current].gameImg; // game uses real sprite
+  }
 
   updateChar();
 </script>
 
 </body>
 </html>
+
