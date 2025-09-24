@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Mataya-Taya Game with Sprites - 1 Player</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+body {
+  margin: 0; padding: 0;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Press Start 2P', cursive;
+}
+canvas {
+  border: 4px solid #ffcc00;
+  image-rendering: pixelated;
+  background: url("place.jpg") no-repeat center center;
+  background-size: cover;
+}
+#countdown {
+  position: absolute;
+  top: 40%;
+  font-size: 48px;
+  color: #ffcc00;
+  text-shadow: 2px 2px 4px #000;
+  animation: pop 1s ease infinite;
+}
+@keyframes pop {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.5); opacity: 0.6; }
+}
+.retroModal {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  z-index: 10;
+}
+.retroContent {
+  position: relative;
+  background: #000;
+  padding: 40px;
+  border: 6px solid #ffcc00;
+  text-align: center;
+  box-shadow: 0 0 15px #ffcc00, inset 0 0 8px #663300;
+  color: #ffcc00;
+  font-family: 'Press Start 2P', cursive;
+}
+.retroContent::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    rgba(255,255,255,0.05) 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+.retroContent h1 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #ff4444;
+  text-shadow: 2px 2px #000, -2px -2px #000, 0 0 10px #ff0000;
+}
+.retroBtn {
+  display: block;
+  margin: 15px auto;
+  padding: 15px 25px;
+  font-size: 14px;
+  background: #111;
+  color: #ffcc00;
+  border: 4px solid #ffcc00;
+  cursor: pointer;
+  border-radius: 0;
+  text-transform: uppercase;
+  font-family: 'Press Start 2P', cursive;
+  transition: all 0.2s ease-in-out;
+}
+.retroBtn:hover {
+  background: #ffcc00;
+  color: #000;
+  box-shadow: 0 0 10px #ffcc00;
+}
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="900" height="500"></canvas>
+<div id="countdown"></div>
+
+<!-- Game Over Modal -->
+<div id="gameOverModal" class="retroModal">
+  <div id="gameOverContent" class="retroContent">
+    <h1>GAME OVER!</h1>
+    <button id="restartBtn" class="retroBtn">START AGAIN</button>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="retroModal">
+  <div class="retroContent">
+    <h1>SETTINGS</h1>
+    <button id="quitBtn" class="retroBtn">QUIT</button>
+    <button id="changeCharBtn" class="retroBtn">CHANGE CHARACTER</button>
+  </div>
+</div>
+
+<script>
+function getQueryParams() {
+  const params = {};
+  window.location.search.substring(1).split("&").forEach(pair => {
+    const [key, value] = pair.split("=");
+    if (key) params[key] = decodeURIComponent(value);
+  });
+  return params;
+}
+
+const params = getQueryParams();
+
+// 8 unique characters (1 player + 7 AI)
+const characterFiles = ['1.png','2.png','3.png','4.png','5.png','6.png','7.png','8.png'];
+let playerImageSrc = params.img || characterFiles[0];
+
+const playerSprite = new Image();
+playerSprite.src = playerImageSrc;
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const backIcon = new Image();
+backIcon.src = "back.png";
+const settingsIcon = new Image();
+settingsIcon.src = "setting.png";
+
+const backBtn = { x: 15, y: 5, w: 50, h: 52 };
+const settingsBtn = { x: canvas.width - 67, y: 1, w: 70, h: 70 };
+
+// Remove player's character from AI pool
+const aiCharacterFiles = characterFiles.filter(f => f !== playerImageSrc);
+const npcSprites = aiCharacterFiles.map(src => { const img = new Image(); img.src = src; return img; });
+
+const playerColumns = 4, playerRows = 4;
+const npcColumns = 4, npcRows = 4;
+let playerFrameW = 0, playerFrameH = 0;
+let npcFrameW = 0, npcFrameH = 0;
+
+let imagesLoaded = 0;
+function checkAllLoaded() {
+  imagesLoaded++;
+  if (imagesLoaded >= npcSprites.length + 1) loop();
+}
+
+playerSprite.onload = () => { playerFrameW = playerSprite.width / playerColumns; playerFrameH = playerSprite.height / playerRows; checkAllLoaded(); };
+npcSprites.forEach(img => { img.onload = () => { npcFrameW = img.width / npcColumns; npcFrameH = img.height / npcRows; checkAllLoaded(); }; });
+
+let players = [];
+const speed = 2;
+const totalPlayers = 8;
+const playArea = { x: 0, y: 150, width: canvas.width, height: canvas.height - 150 };
+
+const keys = {};
+document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
+document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+
+function initGame() {
+  players = [];
+  // Shuffle AI sprites
+  const shuffledAI = npcSprites.sort(() => 0.5 - Math.random());
+  for (let i = 0; i < totalPlayers; i++) {
+    let sprite = null;
+    if (i === 0) sprite = playerSprite; // human
+    else sprite = shuffledAI[i-1]; // AI unique
+    players.push({
+      x: Math.random() * (playArea.width - 100),
+      y: playArea.y + Math.random() * (playArea.height - 100),
+      w: 100,
+      h: 100,
+      isTagger: false,
+      isHuman: i === 0,
+      frameX: 0,
+      frameY: 0,
+      frameCounter: 0,
+      sprite: sprite
+    });
+  }
+  // Pick random tagger
+  players[Math.floor(Math.random() * players.length)].isTagger = true;
+}
+initGame();
+
+let countdown = 3;
+let gameStarted = false;
+const countdownDiv = document.getElementById("countdown");
+
+const countdownInterval = setInterval(() => {
+  countdownDiv.textContent = countdown > 0 ? countdown : "GO!";
+  if (countdown === 0) {
+    clearInterval(countdownInterval);
+    setTimeout(() => { countdownDiv.style.display = "none"; gameStarted = true; }, 1000);
+  }
+  countdown--;
+}, 1000);
+
+let gameOver = false;
+
+function update() {
+  if (!gameStarted || gameOver) return;
+  let p1 = players[0]; let moved = false;
+  if (keys["w"]) { p1.y -= speed; p1.frameY = 3; moved = true; }
+  if (keys["s"]) { p1.y += speed; p1.frameY = 0; moved = true; }
+  if (keys["a"]) { p1.x -= speed; p1.frameY = 1; moved = true; }
+  if (keys["d"]) { p1.x += speed; p1.frameY = 2; moved = true; }
+  if (moved) animate(p1, playerColumns); else { p1.frameX = 0; p1.frameCounter = 0; }
+  clampToPlayArea(p1);
+
+  let taggers = players.filter(p => p.isTagger);
+  for (let i = 1; i < players.length; i++) {
+    let ai = players[i];
+    if (!ai.isTagger) {
+      let nearest = null, minDist = Infinity;
+      for (let t of taggers) { let dx = ai.x - t.x, dy = ai.y - t.y; let dist = Math.sqrt(dx*dx + dy*dy); if (dist < minDist) { minDist = dist; nearest = t; } }
+      if (nearest && minDist < 250) { 
+        let dx = ai.x - nearest.x, dy = ai.y - nearest.y; 
+        let dist = Math.sqrt(dx*dx + dy*dy); 
+        if (dist > 0) { ai.x += (dx / dist) * speed * 1.5; ai.y += (dy / dist) * speed * 1.5; } 
+      } else { 
+        ai.x += (Math.random() * 4 - 2); 
+        ai.y += (Math.random() * 4 - 2); 
+      }
+    } else { 
+      // FIX: Tagger chooses random runner, not always the first
+      let runners = players.filter(p => !p.isTagger);
+      if (runners.length > 0) {
+        let target = runners[Math.floor(Math.random() * runners.length)];
+        if (Math.abs(target.x - ai.x) > speed) ai.x += Math.sign(target.x - ai.x) * speed;
+        if (Math.abs(target.y - ai.y) > speed) ai.y += Math.sign(target.y - ai.y) * speed;
+      }
+    }
+    animate(ai, npcColumns);
+    clampToPlayArea(ai);
+  }
+
+  // Collision: tagging
+  players.forEach(tagger => { 
+    if (tagger.isTagger) { 
+      players.forEach(runner => { 
+        if (!runner.isTagger) { 
+          let dx = runner.x - tagger.x; 
+          let dy = runner.y - tagger.y; 
+          if (Math.sqrt(dx*dx + dy*dy) < 50) runner.isTagger = true; 
+        } 
+      }); 
+    } 
+  });
+
+  // Game over check
+  if(players.filter(p => !p.isTagger).length === 0){ 
+    gameOver = true; 
+    document.getElementById("gameOverModal").style.visibility="visible"; 
+  }
+}
+
+function clampToPlayArea(p){ 
+  if(p.x<playArea.x)p.x=playArea.x; 
+  if(p.y<playArea.y)p.y=playArea.y; 
+  if(p.x>playArea.x+playArea.width-p.w)p.x=playArea.x+playArea.width-p.w; 
+  if(p.y>playArea.y+playArea.height-p.h)p.y=playArea.y+playArea.height-p.h; 
+}
+
+function animate(p,maxFrames){ 
+  p.frameCounter++; 
+  if(p.frameCounter>10){ 
+    p.frameX=(p.frameX+1)%maxFrames; 
+    p.frameCounter=0; 
+  } 
+}
+
+function drawArrow(p,color){ 
+  ctx.fillStyle=color; 
+  ctx.beginPath(); 
+  ctx.moveTo(p.x+p.w/2,p.y-20); 
+  ctx.lineTo(p.x+p.w/2-15,p.y-40); 
+  ctx.lineTo(p.x+p.w/2+15,p.y-40); 
+  ctx.closePath(); 
+  ctx.fill(); 
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  players.forEach(p=>{
+    let frameW=p.isHuman?playerFrameW:npcFrameW;
+    let frameH=p.isHuman?playerFrameH:npcFrameH;
+    ctx.drawImage(p.sprite,p.frameX*frameW,p.frameY*frameH,frameW,frameH,p.x,p.y,p.w,p.h);
+    if(p.isTagger) drawArrow(p,"red");
+  });
+  if(backIcon.complete) ctx.drawImage(backIcon,backBtn.x,backBtn.y,backBtn.w,backBtn.h);
+  if(settingsIcon.complete) ctx.drawImage(settingsIcon,settingsBtn.x,settingsBtn.y,settingsBtn.w,settingsBtn.h);
+}
+
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  document.getElementById("gameOverModal").style.visibility="hidden";
+  gameOver=false; initGame(); countdown=3; gameStarted=false;
+  countdownDiv.style.display="block"; countdownDiv.textContent=countdown;
+  let newInterval=setInterval(()=>{
+    countdownDiv.textContent=countdown>0?countdown:"GO!";
+    if(countdown===0){ clearInterval(newInterval); setTimeout(()=>{ countdownDiv.style.display="none"; gameStarted=true; },1000);}
+    countdown--;
+  },1000);
+});
+
+document.getElementById("quitBtn").addEventListener("click",()=>{window.location.href="index.html";});
+document.getElementById("changeCharBtn").addEventListener("click",()=>{window.location.href="characters.html";});
+
+canvas.addEventListener("click",(e)=>{
+  const rect=canvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left;
+  const my=e.clientY-rect.top;
+  if(mx>=backBtn.x && mx<=backBtn.x+backBtn.w && my>=backBtn.y && my<=backBtn.y+backBtn.h) window.location.href="index.html";
+  if(mx>=settingsBtn.x && mx<=settingsBtn.x+settingsBtn.w && my>=settingsBtn.y && my<=settingsBtn.y+settingsBtn.h) document.getElementById("settingsModal").style.visibility="visible";
+});
+</script>
+
+</body>
+</html>
