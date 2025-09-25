@@ -16,14 +16,24 @@ body {
   overflow: hidden;
   font-family: 'Press Start 2P', cursive;
 }
+
 canvas {
-  width: 950px;
-  height: 550px;
+  width: 65em;
+  height: 40em;
   border: 4px solid #ffcc00;
   image-rendering: pixelated;
   background: url("place.jpg") no-repeat center center;
   background-size: cover;
+  box-shadow: 0 0 10px #ffcc00;
+  animation: glow 2s infinite alternate;
 }
+
+/* Retro pulsing glow animation */
+@keyframes glow {
+  0% { box-shadow: 0 0 10px #ffcc00; }
+  100% { box-shadow: 0 0 30px #ff9900; }
+}
+
 #countdown {
   position: absolute;
   top: 40%;
@@ -32,10 +42,12 @@ canvas {
   text-shadow: 2px 2px 4px #000;
   animation: pop 1s ease infinite;
 }
+
 @keyframes pop {
   from { transform: scale(1); opacity: 1; }
   to { transform: scale(1.5); opacity: 0.6; }
 }
+
 .retroModal {
   position: fixed; top: 0; left: 0;
   width: 100%; height: 100%;
@@ -46,6 +58,7 @@ canvas {
   visibility: hidden;
   z-index: 10;
 }
+
 .retroContent {
   position: relative;
   background: #000;
@@ -56,6 +69,7 @@ canvas {
   color: #ffcc00;
   font-family: 'Press Start 2P', cursive;
 }
+
 .retroContent::after {
   content: "";
   position: absolute;
@@ -68,12 +82,14 @@ canvas {
   );
   pointer-events: none;
 }
+
 .retroContent h1 {
   font-size: 28px;
   margin-bottom: 25px;
   color: #ff4444;
   text-shadow: 2px 2px #000, -2px -2px #000, 0 0 10px #ff0000;
 }
+
 .retroBtn {
   display: block;
   margin: 15px auto;
@@ -88,11 +104,13 @@ canvas {
   font-family: 'Press Start 2P', cursive;
   transition: all 0.2s ease-in-out;
 }
+
 .retroBtn:hover {
   background: #ffcc00;
   color: #000;
   box-shadow: 0 0 10px #ffcc00;
 }
+
 </style>
 </head>
 <body>
