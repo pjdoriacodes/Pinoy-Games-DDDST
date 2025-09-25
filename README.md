@@ -1,4 +1,4 @@
-  ##🎮 Mataya-Taya
+🎮 Mataya-Taya
 
 Mataya-Taya is a Filipino-inspired retro tag game where players must outsmart and outrun an AI-controlled tagger. The game blends classic playground excitement with digital gameplay, testing players’ speed, strategy, and reflexes.
 
