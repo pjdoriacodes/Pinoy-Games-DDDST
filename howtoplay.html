@@ -21,37 +21,50 @@
   }
 
   .howto-wrapper {
-    width: 60em;
-    height: 37em;
-    background: url("bg.png") center/cover no-repeat, #101020;
-    border: 4px solid #ffcc00;
-    position: relative;
-    box-shadow: 0 0 30px #000;
-    padding: 20px;
-    color: #fff;
-    image-rendering: pixelated;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    animation: flicker 2s infinite alternate;
+  width: 60em;
+  height: 37em;
+  background: url("bg.png") center/cover no-repeat, #101020;
+  border: 4px solid #ffcc00;
+  position: relative;
+  box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
+  padding: 20px;
+  color: #fff;
+  image-rendering: pixelated;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: flicker 2s infinite alternate, neonGlowOuter 3s infinite alternate;
 }
 
+/* CRT / Scanline overlay */
+.howto-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.15) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  animation: scan 5s linear infinite;
+}
 
-  .howto-wrapper::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.15),
-      rgba(0,0,0,0.15) 2px,
-      transparent 2px,
-      transparent 4px
-    );
-    pointer-events: none;
-    animation: scan 5s linear infinite;
+/* Thin subtle outer neon glow animation */
+@keyframes neonGlowOuter {
+  0% {
+    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
   }
+  50% {
+    box-shadow: 0 0 7px #ffcc00, 0 0 12px #ff6600, 0 0 18px #ff3300;
+  }
+  100% {
+    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
+  }
+}
 
   .title {
     font-size: 32px;
@@ -111,44 +124,49 @@
     color: #ffcc00;
     font-size: 18px;
     text-shadow: 1px 1px #000;
-    box-shadow: 0 0 5px #ffcc00;
+    box-shadow: 0 0 5px #ffcc00, inset 0 0 2px #ffcc00;
     animation: pulse 2s infinite;
     user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
   }
 
-.marker {
-  display: inline-block;
-  color: red;
-  font-weight: bold;
-  font-size: 18px; /* adjust size if needed */
-  margin-right: 5px;
-  animation: blink 1s infinite;
-}
+  .key.active {
+    background: #ffcc00;
+    color: #000;
+    transform: scale(0.9);
+    box-shadow: 0 0 8px #ffcc00, inset 0 0 6px #000;
+  }
 
-@keyframes blink {
-  0%,50%,100% { opacity: 1; }
-  25%,75% { opacity: 0.2; }
-}
+  .marker {
+    display: inline-block;
+    color: red;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 5px;
+    animation: blink 1s infinite;
+  }
 
+  @keyframes blink {
+    0%,50%,100% { opacity: 1; }
+    25%,75% { opacity: 0.2; }
+  }
 
+  /* Back Button (Image) */
   .back-btn {
-    align-self: center;
-    background: #e74c3c;
-    border: none;
-    padding: 14px 28px;
-    font-size: 12px;
-    color: #fff;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    margin-top: -10px;
+    width: 60px;
+    height: 60px;
     cursor: pointer;
-    box-shadow: 0 0 10px #000;
-    text-transform: uppercase;
-    transition: all 0.2s ease-in-out;
-    margin-top: 10px;
+    z-index: 10;
   }
 
-  .back-btn:hover {
-    background: #c0392b;
-    transform: scale(1.1);
-    box-shadow: 0 0 15px #ff0000;
+  .back-btn img {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
   }
 
   @keyframes glow {
@@ -159,11 +177,6 @@
   @keyframes pulse {
     0%, 100% { border-color: #ffcc00; }
     50% { border-color: #ff6600; }
-  }
-
-  @keyframes blink {
-    0%,50%,100% { opacity: 1; }
-    25%,75% { opacity: 0.2; }
   }
 
   @keyframes fadeIn {
@@ -191,11 +204,16 @@
 </head>
 <body>
 <div class="howto-wrapper">
+
+  <!-- Back Button as Image -->
+  <div class="back-btn" onclick="location.href='index.html'">
+    <img src="back.png" alt="Back">
+  </div>
+
   <div class="title">HOW THE GAME WORKS</div>
   <div class="content">
     <div class="instructions">
       <p>Welcome to <span style="color:#ffcc00;">Mataya-Taya</span>! 🕹️</p>
-
       <p><strong>Step 1:</strong> Choose your character on the selection screen.</p>
       <p><strong>Step 2:</strong> Click "Play" to start the game.</p>
       <p><strong>Step 3:</strong> Watch for the <span class="marker">▾</span> — it shows who is currently "TAYA".</p>
@@ -206,23 +224,38 @@
     </div>
 
     <div class="keyboard">
-      <div class="key-row"></div>
       <div class="key-row">
         <div class="key"></div>
-        <div class="key">W</div>
+        <div class="key" id="keyW">W</div>
         <div class="key"></div>
       </div>
       <div class="key-row">
-        <div class="key">A</div>
-        <div class="key">S</div>
-        <div class="key">D</div>
+        <div class="key" id="keyA">A</div>
+        <div class="key" id="keyS">S</div>
+        <div class="key" id="keyD">D</div>
       </div>
       <div class="key-row"></div>
       <p style="margin-top:10px; font-size:10px; text-align:center;">Use these keys to move your character</p>
     </div>
   </div>
 
-  <button class="back-btn" onclick="location.href='index.html'">⬅ Back to Menu</button>
 </div>
+
+<script>
+  // Key press demo animation
+  const keys = ['W','A','S','D'];
+  keys.forEach(key => {
+    document.addEventListener('keydown', e => {
+      if (e.key.toUpperCase() === key) {
+        document.getElementById('key'+key).classList.add('active');
+      }
+    });
+    document.addEventListener('keyup', e => {
+      if (e.key.toUpperCase() === key) {
+        document.getElementById('key'+key).classList.remove('active');
+      }
+    });
+  });
+</script>
 </body>
-</html>
+  </html>
