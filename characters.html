@@ -6,8 +6,7 @@
   <title>Select Character - Pinoy Game</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
-
-      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
     body {
       margin: 0;
@@ -48,8 +47,8 @@
     }
 
     .char-wrapper {
-      width: 950px;
-      height: 550px;
+      width: 60em;
+      height: 37em;
       background: url("bg.png") no-repeat center center;
       background-size: cover;
       box-shadow: 0px 0px 30px #000;
@@ -127,6 +126,24 @@
     @keyframes arrowPulse {
       from { transform: translateY(-50%) scale(1); }
       to { transform: translateY(-50%) scale(1.3); }
+    }
+
+    /* Back Button */
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 60px;
+      margin-top: -10px;
+      height: 60px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .back-btn img {
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
     }
 
     /* Info Box */
@@ -207,11 +224,15 @@
       from { opacity: 0; transform: translateX(40px); }
       to { opacity: 1; transform: translateX(0); }
     }
-    
   </style>
 </head>
 <body>
-   <div class="char-wrapper">
+  <div class="char-wrapper">
+    <!-- Back Button -->
+    <div class="back-btn" onclick="goBack()">
+      <img src="back.png" alt="Back">
+    </div>
+
     <div class="title">CHOOSE YOUR CHARACTER</div>
 
     <div class="char-container">
@@ -225,15 +246,14 @@
         <h2 id="charName">WARRIOR</h2>
         <div class="stat"><span>Strength:</span><div class="bar" id="stat1" style="width:160px"></div></div>
         <div class="stat"><span>Speed:</span><div class="bar" id="stat2" style="width:120px"></div></div>
-        <div class="stat"><span>Defense:</span><div class="bar" id="stat3" style="width:100px"></div></div>
-        <div class="stat"><span>Skill:</span><div class="bar" id="stat4" style="width:140px"></div></div>
+        <div class="stat"><span>Agility:</span><div class="bar" id="stat3" style="width:100px"></div></div>
+        <div class="stat"><span>Strategy:</span><div class="bar" id="stat4" style="width:140px"></div></div>
         <button class="play-btn" onclick="startGame()">▶ PLAY</button>
       </div>
     </div>
   </div>
 
-
- <script>
+  <script>
   const characters = [
     {name: "JUAN", preview: "11.png", gameImg: "1.png", stats:[160,120,100,140]},
     {name: "JEO", preview: "22.png", gameImg: "2.png", stats:[100,180,90,150]},
@@ -271,11 +291,13 @@
     location.href = "game.html?img=" + characters[current].gameImg; // game uses real sprite
   }
 
+ function goBack() {
+  window.location.href = "index.html"; // Go back to the main index page
+}
+
+
   updateChar();
 </script>
 
 </body>
 </html>
-
-
-
