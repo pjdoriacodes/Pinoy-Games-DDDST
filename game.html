@@ -153,9 +153,7 @@ let playerImageSrc = params.img || characterFiles[0];
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const backIcon = new Image(); backIcon.src = "back.png";
 const settingsIcon = new Image(); settingsIcon.src = "setting.png";
-const backBtn = { x: 15, y: 5, w: 50, h: 52 };
 const settingsBtn = { x: canvas.width - 67, y: 1, w: 70, h: 70 };
 
 const playerSprite = new Image(); playerSprite.src = playerImageSrc;
@@ -189,16 +187,16 @@ const playArea = { x: 0, y: 150, width: canvas.width, height: canvas.height - 15
 
 // speeds (tweakable)
 const playerSpeed = 2.6;
-const aiChaseSpeed = 2.4;   // tagger speed
-const aiRunSpeed = 2.8;     // runner fleeing speed (slightly faster so fleeing looks real)
-const aiWanderSpeed = 1.0;  // idle wander speed
-const velocitySmoothing = 0.18; // interpolation factor for velocities
+const aiChaseSpeed = 2.4;
+const aiRunSpeed = 2.8;
+const aiWanderSpeed = 1.0;
+const velocitySmoothing = 0.18;
 
 /* perception & behavior */
-const threatRange = 240;     // when runners notice tagger
-const separationDist = 60;   // how close AIs repel from each other
-const separationStrength = 0.6; // influence of separation
-const directionUpdateThreshold = 0.25; // minimum speed to change facing/animate
+const threatRange = 240;
+const separationDist = 60;
+const separationStrength = 0.6;
+const directionUpdateThreshold = 0.25;
 
 /* input */
 const keys = {};
@@ -208,7 +206,6 @@ document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 /* ---------- Initialize game ---------- */
 function initGame() {
   players = [];
-  // shuffle AI sprites
   const shuffledAI = npcSprites.slice().sort(() => 0.5 - Math.random());
 
   for (let i = 0; i < totalPlayers; i++) {
@@ -220,15 +217,14 @@ function initGame() {
       isHuman: i === 0,
       sprite,
       frameX: 0, frameY: 0, frameCounter: 0,
-      vx: 0, vy: 0,            // current velocity
-      lastDir: 0,             // last facing (0=down,1=left,2=right,3=up)
+      vx: 0, vy: 0,
+      lastDir: 0,
       wanderTimer: 0,
       wanderDir: { x: 0, y: 0 },
       targetIndex: null,
       targetTimer: 0
     });
   }
-  // random tagger
   players[Math.floor(Math.random() * players.length)].isTagger = true;
 }
 initGame();
@@ -266,7 +262,6 @@ function centerOf(p) { return { x: p.x + p.w / 2, y: p.y + p.h / 2 }; }
 function animate(p, maxFrames, isMoving) {
   if (isMoving) {
     p.frameCounter++;
-    // faster if moving faster? here keep stable cadence
     if (p.frameCounter > 10) {
       p.frameX = (p.frameX + 1) % maxFrames;
       p.frameCounter = 0;
@@ -281,10 +276,8 @@ function animate(p, maxFrames, isMoving) {
 function update() {
   if (!gameStarted || gameOver) return;
 
-  // --- Human player (index 0) ---
   const p1 = players[0];
   let moved = false;
-  // reset velocity for human each frame (direct control)
   p1.vx = 0; p1.vy = 0;
   if (keys["w"]) { p1.y -= playerSpeed; p1.frameY = 3; p1.lastDir = 3; moved = true; }
   if (keys["s"]) { p1.y += playerSpeed; p1.frameY = 0; p1.lastDir = 0; moved = true; }
@@ -294,17 +287,12 @@ function update() {
   else { animate(p1, playerColumns, false); p1.frameY = p1.lastDir; }
   clampToPlayArea(p1);
 
-  // collect taggers array for AI logic
   const taggers = players.filter(p => p.isTagger);
 
-  // --- AI players ---
   for (let i = 1; i < players.length; i++) {
     const ai = players[i];
-
-    // centers
     const aiC = centerOf(ai);
 
-    // separation (avoid crowding)
     let sepX = 0, sepY = 0;
     let neighbors = 0;
     for (let j = 1; j < players.length; j++) {
@@ -314,22 +302,16 @@ function update() {
       const dx = aiC.x - oC.x, dy = aiC.y - oC.y;
       const d = Math.hypot(dx, dy);
       if (d > 0 && d < separationDist) {
-        // push away stronger the closer they are
         sepX += (dx / d) * (separationDist - d);
         sepY += (dy / d) * (separationDist - d);
         neighbors++;
       }
     }
-    if (neighbors > 0) {
-      sepX = (sepX / neighbors) * separationStrength;
-      sepY = (sepY / neighbors) * separationStrength;
-    }
+    if (neighbors > 0) { sepX = (sepX / neighbors) * separationStrength; sepY = (sepY / neighbors) * separationStrength; }
 
-    // compute desired velocity
     let desiredVX = 0, desiredVY = 0;
 
     if (!ai.isTagger) {
-      // Runner: find nearest tagger
       let nearest = null, minDist = Infinity;
       for (let t of taggers) {
         const tC = centerOf(t);
@@ -339,34 +321,27 @@ function update() {
       }
 
       if (nearest && minDist < threatRange) {
-        // flee from nearest tagger (smooth normalized vector away)
         const tC = centerOf(nearest);
         let dx = aiC.x - tC.x, dy = aiC.y - tC.y;
         const n = normalize(dx, dy);
         desiredVX = n.x * aiRunSpeed;
         desiredVY = n.y * aiRunSpeed;
       } else {
-        // natural wander: keep direction for a while
         if (ai.wanderTimer <= 0) {
           const angle = Math.random() * Math.PI * 2;
           ai.wanderDir = { x: Math.cos(angle), y: Math.sin(angle) };
-          ai.wanderTimer = 40 + Math.random() * 90; // hold 40-130 frames
+          ai.wanderTimer = 40 + Math.random() * 90;
         }
         desiredVX = ai.wanderDir.x * aiWanderSpeed;
         desiredVY = ai.wanderDir.y * aiWanderSpeed;
         ai.wanderTimer--;
       }
     } else {
-      // Tagger: pick a target runner (prefer nearest but keep for a while)
       if (!ai.targetIndex || players[ai.targetIndex]?.isTagger || ai.targetTimer <= 0) {
         const runners = players.map((p, idx) => ({ p, idx })).filter(x => !x.p.isTagger);
         if (runners.length > 0) {
-          // choose nearest runner now (more realistic), but add chance to pick random
-          if (Math.random() < 0.25) {
-            const r = runners[Math.floor(Math.random() * runners.length)];
-            ai.targetIndex = r.idx;
-          } else {
-            // pick nearest runner
+          if (Math.random() < 0.25) { const r = runners[Math.floor(Math.random() * runners.length)]; ai.targetIndex = r.idx; }
+          else {
             let nearestIdx = runners[0].idx, nearestDist = Infinity;
             for (const r of runners) {
               const c = centerOf(r.p);
@@ -376,14 +351,9 @@ function update() {
             }
             ai.targetIndex = nearestIdx;
           }
-          ai.targetTimer = 40 + Math.random() * 120; // keep target some frames
-        } else {
-          ai.targetIndex = null;
-          ai.targetTimer = 10;
-        }
-      } else {
-        ai.targetTimer--;
-      }
+          ai.targetTimer = 40 + Math.random() * 120;
+        } else { ai.targetIndex = null; ai.targetTimer = 10; }
+      } else { ai.targetTimer--; }
 
       const target = players[ai.targetIndex];
       if (target) {
@@ -395,58 +365,40 @@ function update() {
       }
     }
 
-    // add separation influence
     desiredVX += sepX;
     desiredVY += sepY;
 
-    // limit desired speed (so separation + wander doesn't exceed reasonable speed)
     const desiredMag = Math.hypot(desiredVX, desiredVY);
     const maxDesired = ai.isTagger ? aiChaseSpeed : (Math.hypot(desiredVX, desiredVY) > aiRunSpeed ? aiRunSpeed : aiWanderSpeed + 0.5);
-    if (desiredMag > maxDesired && desiredMag > 0) {
-      desiredVX = (desiredVX / desiredMag) * maxDesired;
-      desiredVY = (desiredVY / desiredMag) * maxDesired;
-    }
+    if (desiredMag > maxDesired && desiredMag > 0) { desiredVX = (desiredVX / desiredMag) * maxDesired; desiredVY = (desiredVY / desiredMag) * maxDesired; }
 
-    // smooth velocity (steering) - this removes sudden jumps and jitter
     ai.vx += (desiredVX - ai.vx) * velocitySmoothing;
     ai.vy += (desiredVY - ai.vy) * velocitySmoothing;
 
-    // update position using velocity
     ai.x += ai.vx;
     ai.y += ai.vy;
 
-    // set facing: only change when velocity big enough
     const speedMag = Math.hypot(ai.vx, ai.vy);
     if (speedMag > directionUpdateThreshold) {
-      if (Math.abs(ai.vx) > Math.abs(ai.vy)) {
-        ai.frameY = ai.vx > 0 ? 2 : 1; // right : left
-      } else {
-        ai.frameY = ai.vy > 0 ? 0 : 3; // down : up
-      }
+      if (Math.abs(ai.vx) > Math.abs(ai.vy)) { ai.frameY = ai.vx > 0 ? 2 : 1; }
+      else { ai.frameY = ai.vy > 0 ? 0 : 3; }
       ai.lastDir = ai.frameY;
-    } else {
-      // idle keep last direction
-      ai.frameY = ai.lastDir;
-    }
+    } else { ai.frameY = ai.lastDir; }
 
-    // animate only if actually moving
     animate(ai, npcColumns, speedMag > 0.2);
-
     clampToPlayArea(ai);
-  } // end AI loop
+  }
 
-  // --- Tagging collision (use center distance and a reasonable threshold) ---
   const taggersNow = players.filter(p => p.isTagger);
   for (const tagger of taggersNow) {
     for (const runner of players.filter(p => !p.isTagger)) {
       const tc = centerOf(tagger), rc = centerOf(runner);
       const d = Math.hypot(tc.x - rc.x, tc.y - rc.y);
-      const threshold = (tagger.w + runner.w) * 0.28; // tuned collision threshold
+      const threshold = (tagger.w + runner.w) * 0.28;
       if (d < threshold) runner.isTagger = true;
     }
   }
 
-  // Game over
   if (players.filter(p => !p.isTagger).length === 0) {
     gameOver = true;
     const modal = document.getElementById("gameOverModal");
@@ -456,12 +408,12 @@ function update() {
 
 /* ---------- Draw ---------- */
 function drawArrow(p, color) {
-  const offset = 1; // almost touching the head
+  const offset = 1;
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(p.x + p.w / 2, p.y - offset);               // base of arrow just above head
-  ctx.lineTo(p.x + p.w / 2 - 10, p.y - offset - 10);     // left tip
-  ctx.lineTo(p.x + p.w / 2 + 10, p.y - offset - 10);     // right tip
+  ctx.moveTo(p.x + p.w / 2, p.y - offset);
+  ctx.lineTo(p.x + p.w / 2 - 10, p.y - offset - 10);
+  ctx.lineTo(p.x + p.w / 2 + 10, p.y - offset - 10);
   ctx.closePath();
   ctx.fill();
 }
@@ -474,11 +426,9 @@ function draw() {
     const frameW = (img && img.frameW) ? img.frameW : Math.floor(img.width / playerColumns);
     const frameH = (img && img.frameH) ? img.frameH : Math.floor(img.height / playerRows);
 
-    // safety fallback if image not loaded
     if (img && img.complete && frameW > 0 && frameH > 0) {
       ctx.drawImage(img, p.frameX * frameW, p.frameY * frameH, frameW, frameH, p.x, p.y, p.w, p.h);
     } else {
-      // placeholder rectangle while image loads
       ctx.fillStyle = "#888";
       ctx.fillRect(p.x, p.y, p.w, p.h);
     }
@@ -486,7 +436,6 @@ function draw() {
     if (p.isTagger) drawArrow(p, "red");
   }
 
-  if (backIcon.complete) ctx.drawImage(backIcon, backBtn.x, backBtn.y, backBtn.w, backBtn.h);
   if (settingsIcon.complete) ctx.drawImage(settingsIcon, settingsBtn.x, settingsBtn.y, settingsBtn.w, settingsBtn.h);
 }
 
@@ -503,7 +452,6 @@ document.getElementById("restartBtn").addEventListener("click", () => {
   if (modal) modal.style.visibility = "hidden";
   gameOver = false;
   initGame();
-  // reset countdown and start again
   countdown = 3; gameStarted = false;
   if (countdownDiv) { countdownDiv.style.display = "block"; countdownDiv.textContent = countdown; }
   let newInterval = setInterval(() => {
@@ -526,12 +474,6 @@ canvas.addEventListener("click", (e) => {
   const mx = (e.clientX - rect.left) * scaleX;
   const my = (e.clientY - rect.top) * scaleY;
 
-  // Back button
-  if (mx >= backBtn.x && mx <= backBtn.x + backBtn.w &&
-      my >= backBtn.y && my <= backBtn.y + backBtn.h) {
-    window.location.href = "characters.html";
-  }
-
   // Settings button
   if (mx >= settingsBtn.x && mx <= settingsBtn.x + settingsBtn.w &&
       my >= settingsBtn.y && my <= settingsBtn.y + settingsBtn.h) {
@@ -539,7 +481,6 @@ canvas.addEventListener("click", (e) => {
     if (s) s.style.visibility = "visible";
   }
 });
-
 </script>
 
 </body>
