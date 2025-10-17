@@ -9,68 +9,63 @@
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
   body {
-    margin: 0;
-    padding: 0;
-    background-color: #0f0f1c;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: 'Press Start 2P', cursive;
-    overflow: hidden;
-  }
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("bg.png") center center / cover no-repeat #0f0f1c;
+  font-family: 'Press Start 2P', cursive;
+  overflow: hidden;
+}
 
-  .howto-wrapper {
-  width: 60em;
-  height: 37em;
-  background: url("bg.png") center/cover no-repeat, #101020;
+/* Wrapper (same layout but scaled for fullscreen) */
+.howto-wrapper {
+  width: 60%;
+  max-width: 58em;
+  aspect-ratio: 58 / 34; /* keeps the same proportion */
+  background: rgba(16, 16, 32, 0.85);
   border: 4px solid #ffcc00;
-  position: relative;
   box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
   padding: 20px;
   color: #fff;
-  image-rendering: pixelated;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  image-rendering: pixelated;
   animation: flicker 2s infinite alternate, neonGlowOuter 3s infinite alternate;
 }
 
-/* CRT / Scanline overlay */
-.howto-wrapper::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.15),
-    rgba(0,0,0,0.15) 2px,
-    transparent 2px,
-    transparent 4px
-  );
-  pointer-events: none;
-  animation: scan 5s linear infinite;
-}
+  /* CRT / Scanline overlay */
+  .howto-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.15),
+      rgba(0,0,0,0.15) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+    pointer-events: none;
+    animation: scan 5s linear infinite;
+  }
 
-/* Thin subtle outer neon glow animation */
-@keyframes neonGlowOuter {
-  0% {
-    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
+  @keyframes neonGlowOuter {
+    0%,100% { box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300; }
+    50% { box-shadow: 0 0 8px #ffcc00, 0 0 15px #ff6600, 0 0 20px #ff3300; }
   }
-  50% {
-    box-shadow: 0 0 7px #ffcc00, 0 0 12px #ff6600, 0 0 18px #ff3300;
-  }
-  100% {
-    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
-  }
-}
 
   .title {
-    font-size: 32px;
+    font-size: 28px;
     color: #ffcc00;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     text-shadow: 2px 2px #000, 0 0 8px #ff6600;
     animation: glow 1.5s infinite alternate;
   }
@@ -80,12 +75,12 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px;
+    gap: 20px;
     overflow: hidden;
   }
 
   .instructions {
-    width: 60%;
+    flex: 2;
     background: rgba(0,0,0,0.7);
     border: 3px solid #fff;
     padding: 20px;
@@ -93,18 +88,31 @@
     line-height: 1.8;
     overflow-y: auto;
     animation: fadeIn 2s ease-in-out;
+    box-shadow: inset 0 0 10px #ffcc00;
+    border-radius: 10px;
+  }
+
+  /* Custom Scrollbar */
+  .instructions::-webkit-scrollbar {
+    width: 8px;
+  }
+  .instructions::-webkit-scrollbar-thumb {
+    background: #ffcc00;
+    border-radius: 10px;
   }
 
   .keyboard {
-    width: 35%;
+    flex: 1;
     background: rgba(16,16,32,0.9);
     border: 3px solid #ffcc00;
+    border-radius: 10px;
     padding: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     animation: slideIn 2s ease-in-out;
+    box-shadow: inset 0 0 8px #ffcc00;
   }
 
   .key-row {
@@ -128,6 +136,12 @@
     animation: pulse 2s infinite;
     user-select: none;
     transition: transform 0.1s, box-shadow 0.1s;
+    border-radius: 8px;
+  }
+
+  .key:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px #ffcc00;
   }
 
   .key.active {
@@ -151,24 +165,30 @@
     25%,75% { opacity: 0.2; }
   }
 
-  /* Back Button (Image) */
   .back-btn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    margin-top: -10px;
-    width: 60px;
-    height: 60px;
-    cursor: pointer;
-    z-index: 10;
-  }
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  width: 65px;
+  height: 65px;
+  z-index: 4;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 0 6px #000);
+}
 
-  .back-btn img {
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-  }
+.back-btn img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
 
+.back-btn:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 10px #ffcc00);
+}
+  /* Animations */
   @keyframes glow {
     from { text-shadow: 2px 2px #000, 0 0 8px #ff6600; }
     to { text-shadow: 2px 2px #000, 0 0 16px #ff0000; }
@@ -198,6 +218,24 @@
     0% { opacity: 1; }
     50% { opacity: 0.98; }
     100% { opacity: 1; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .howto-wrapper {
+      width: 90%;
+      height: auto;
+      flex-direction: column;
+      padding: 15px;
+    }
+
+    .content {
+      flex-direction: column;
+    }
+
+    .keyboard {
+      margin-top: 20px;
+    }
   }
 
 </style>
