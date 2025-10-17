@@ -2,37 +2,159 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Mataya-Taya Game</title>
+<title>Mataya-Taya Game with Sprites - Improved AI</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 body {
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   background: #000;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
   font-family: 'Press Start 2P', cursive;
 }
-
 canvas {
-  width: 65em;
-  height: 40em;
+  width: 100vw;
+  height: 100vh;
   border: 4px solid #ffcc00;
   image-rendering: pixelated;
-  background: url("place.jpg") no-repeat center center;
-  background-size: cover;
-  box-shadow: 0 0 10px #ffcc00;
+  background: #000;
+  box-shadow: 0 0 20px #ffcc00;
   animation: glow 2s infinite alternate;
 }
-
-/* Retro pulsing glow animation */
 @keyframes glow {
-  0% { box-shadow: 0 0 10px #ffcc00; }
-  100% { box-shadow: 0 0 30px #ff9900; }
+  from { box-shadow: 0 0 15px #ffcc00; }
+  to { box-shadow: 0 0 40px #ffcc00; }
 }
+
+/* --- Settings Button (Bigger Version) --- */
+#settingsBtn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 70px;   /* increased size for better visibility */
+  height: 70px;
+  cursor: pointer;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 8px #ffcc00);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  z-index: 5;
+}
+
+#settingsBtn:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 15px #ffcc00);
+}
+
+/* --- Settings Modal --- */
+#settingsModal {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  z-index: 20;
+}
+
+/* --- Settings Content Box (Retro Pixel Art Style) --- */
+#settingsContent {
+  position: relative;
+  background: repeating-linear-gradient(
+    to bottom,
+    #000 0px,
+    #000 2px,
+    #0a0a0a 3px
+  ); /* subtle CRT scanline pattern */
+  padding: 40px;
+  border: 6px solid #ffcc00;
+  text-align: center;
+  box-shadow:
+    0 0 15px #ffcc00,
+    inset 0 0 8px #663300,
+    0 0 30px #ff6600 inset;
+  color: #ffcc00;
+  font-family: 'Press Start 2P', cursive;
+   border-radius: 20px;
+  width: 400px;
+  max-width: 90%;
+  image-rendering: pixelated;
+  transform: scale(1);
+  transition: transform 0.2s ease;
+}
+
+#settingsContent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 4px dashed #ff6600;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* --- Settings Title (Retro Glow) --- */
+#settingsContent h1 {
+  font-size: 22px;
+  margin-bottom: 25px;
+  color: #ff4444;
+  text-shadow:
+    2px 2px 0 #000,
+    -2px -2px 0 #000,
+    0 0 8px #ff0000,
+    0 0 16px #ff6600;
+  letter-spacing: 2px;
+}
+
+/* --- Settings Buttons (Pixel Art Style) --- */
+#settingsContent button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    #111 0px,
+    #111 2px,
+    #1a1a1a 3px
+  );
+  border: 3px solid #ffcc00;
+  color: #ffcc00;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 0; /* pixel-style corners */
+  box-shadow: 0 0 8px #ffcc00;
+  image-rendering: pixelated;
+}
+
+#settingsContent button:hover {
+  background: #ffcc00;
+  color: #000;
+  box-shadow: 0 0 15px #ffcc00, 0 0 30px #ff6600;
+  transform: translateY(-2px);
+}
+
+/* --- Retro Flicker Effect (optional aesthetic) --- */
+@keyframes retroFlicker {
+  0%, 100% { opacity: 1; }
+  95% { opacity: 0.85; }
+  97% { opacity: 0.9; }
+  99% { opacity: 0.7; }
+}
+#settingsContent {
+  animation: retroFlicker 2s infinite steps(2, end);
+}
+
 
 #countdown {
   position: absolute;
@@ -42,34 +164,47 @@ canvas {
   text-shadow: 2px 2px 4px #000;
   animation: pop 1s ease infinite;
 }
-
 @keyframes pop {
   from { transform: scale(1); opacity: 1; }
   to { transform: scale(1.5); opacity: 0.6; }
 }
-
+/* === RETRO MODAL OVERLAY === */
 .retroModal {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.9);
+  position: fixed; 
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background: rgba(0,0,0,0.95);
   display: flex;
   justify-content: center;
   align-items: center;
   visibility: hidden;
-  z-index: 10;
+  z-index: 1000;
+  animation: fadeInBg 0.3s ease-in-out;
 }
 
+/* === RETRO CONTENT BOX === */
 .retroContent {
   position: relative;
   background: #000;
-  padding: 40px;
+  padding: 50px 40px;
   border: 6px solid #ffcc00;
   text-align: center;
-  box-shadow: 0 0 15px #ffcc00, inset 0 0 8px #663300;
   color: #ffcc00;
   font-family: 'Press Start 2P', cursive;
+  box-shadow: 
+    0 0 20px #ffcc00, 
+    inset 0 0 15px #663300, 
+    0 0 40px #ff6600;
+  border-radius: 20px;
+  width: 420px;
+  max-width: 90%;
+  text-transform: uppercase;
+  animation: popIn 0.3s ease-in-out;
 }
 
+/* === SCANLINE EFFECT === */
 .retroContent::after {
   content: "";
   position: absolute;
@@ -83,32 +218,67 @@ canvas {
   pointer-events: none;
 }
 
+/* === RETRO HEADER === */
 .retroContent h1 {
-  font-size: 28px;
+  font-size: 26px;
   margin-bottom: 25px;
-  color: #ff4444;
-  text-shadow: 2px 2px #000, -2px -2px #000, 0 0 10px #ff0000;
+  color: #ff3333;
+  text-shadow: 
+    2px 2px #000, 
+    -2px -2px #000, 
+    0 0 10px #ff0000,
+    0 0 20px #ff6600;
+  animation: flicker 1.5s infinite alternate;
 }
 
+/* === RETRO BUTTONS === */
 .retroBtn {
   display: block;
-  margin: 15px auto;
-  padding: 15px 25px;
+  margin: 20px auto;
+  padding: 18px 30px;
   font-size: 14px;
   background: #111;
   color: #ffcc00;
   border: 4px solid #ffcc00;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: 0px;
   text-transform: uppercase;
   font-family: 'Press Start 2P', cursive;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 0 10px #ffcc00;
 }
 
 .retroBtn:hover {
   background: #ffcc00;
   color: #000;
-  box-shadow: 0 0 10px #ffcc00;
+  box-shadow: 0 0 25px #ffcc00, 0 0 50px #ffaa00;
+  transform: scale(1.08);
+}
+
+/* === ANIMATIONS === */
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInBg {
+  from { background: rgba(0,0,0,0); }
+  to { background: rgba(0,0,0,0.95); }
 }
 
 </style>
@@ -117,6 +287,18 @@ canvas {
 <canvas id="gameCanvas" width="900" height="500"></canvas>
 <div id="countdown"></div>
 
+<!-- ⚙️ SETTINGS BUTTON -->
+<img id="settingsBtn" src="setting.png" alt="Settings">
+
+<!-- ⚙️ SETTINGS MODAL -->
+<div id="settingsModal">
+  <div id="settingsContent">
+    <h1>SETTINGS</h1>
+    <button id="changeCharacterBtn" class="retroBtn">CHANGE CHARACTER</button>
+    <button id="quitBtn" class="retroBtn">QUIT GAME</button>
+  </div>
+</div>
+
 <!-- Game Over Modal -->
 <div id="gameOverModal" class="retroModal">
   <div id="gameOverContent" class="retroContent">
@@ -124,18 +306,7 @@ canvas {
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
   </div>
 </div>
-
-<!-- Settings Modal -->
-<div id="settingsModal" class="retroModal">
-  <div class="retroContent">
-    <h1>SETTINGS</h1>
-    <button id="quitBtn" class="retroBtn">QUIT</button>
-    <button id="changeCharBtn" class="retroBtn">CHANGE CHARACTER</button>
-  </div>
-</div>
-
 <script>
-/* ---------- Query params & image list ---------- */
 function getQueryParams() {
   const params = {};
   window.location.search.substring(1).split("&").forEach(pair => {
@@ -146,74 +317,115 @@ function getQueryParams() {
 }
 const params = getQueryParams();
 
+// === CHARACTER FILES ===
 const characterFiles = ['1.png','2.png','3.png','4.png','5.png','6.png','7.png','8.png'];
-let playerImageSrc = params.img || characterFiles[0];
 
-/* ---------- Canvas & images ---------- */
+// === MAP SELECTION / PERSISTENCE ===
+let storedMap = localStorage.getItem("selectedMap");
+let urlMap = params.map;
+
+let selectedMap;
+if (urlMap) {
+  selectedMap = urlMap;
+  localStorage.setItem("selectedMap", selectedMap);
+} else if (storedMap) {
+  selectedMap = storedMap;
+} else {
+  alert("No map selected! Please go back and choose a map first.");
+  window.location.href = "map.html";
+}
+
+// === CHARACTER SELECTION / PERSISTENCE ===
+let storedChar = localStorage.getItem("selectedCharacter");
+let urlChar = params.img;
+
+let playerImageSrc;
+if (urlChar) {
+  playerImageSrc = urlChar;
+  localStorage.setItem("selectedCharacter", playerImageSrc);
+} else if (storedChar) {
+  playerImageSrc = storedChar;
+} else {
+  playerImageSrc = characterFiles[0];
+  localStorage.setItem("selectedCharacter", playerImageSrc);
+}
+
+// === LOAD MAP IMAGE ===
+const mapImage = new Image();
+mapImage.src = selectedMap;
+let mapLoaded = false;
+mapImage.onload = () => { mapLoaded = true; };
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const settingsIcon = new Image(); settingsIcon.src = "setting.png";
-const settingsBtn = { x: canvas.width - 67, y: 1, w: 70, h: 70 };
-
-const playerSprite = new Image(); playerSprite.src = playerImageSrc;
+// Sprites
+const playerSprite = new Image();
+playerSprite.src = playerImageSrc;
 const aiCharacterFiles = characterFiles.filter(f => f !== playerImageSrc);
-const npcSprites = aiCharacterFiles.map(src => { const img = new Image(); img.src = src; return img; });
+const npcSprites = aiCharacterFiles.map(src => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
 
 const playerColumns = 4, playerRows = 4;
 const npcColumns = 4, npcRows = 4;
 
-/* Each image stores frameW/frameH on load so each sprite can have its own size */
 let imagesLoaded = 0;
-const totalImages = npcSprites.length + 1; // player + all NPC images
+const totalImages = npcSprites.length + 1;
 
 playerSprite.onload = () => {
   playerSprite.frameW = Math.floor(playerSprite.width / playerColumns);
   playerSprite.frameH = Math.floor(playerSprite.height / playerRows);
-  imagesLoaded++; if (imagesLoaded >= totalImages) loop();
+  imagesLoaded++;
+  if (imagesLoaded >= totalImages) loop();
 };
 npcSprites.forEach(img => {
   img.onload = () => {
     img.frameW = Math.floor(img.width / npcColumns);
     img.frameH = Math.floor(img.height / npcRows);
-    imagesLoaded++; if (imagesLoaded >= totalImages) loop();
+    imagesLoaded++;
+    if (imagesLoaded >= totalImages) loop();
   };
 });
 
-/* ---------- Game state & tuning ---------- */
+// === GAME STATE ===
 let players = [];
 const totalPlayers = 8;
 const playArea = { x: 0, y: 150, width: canvas.width, height: canvas.height - 150 };
 
-// speeds (tweakable)
-const playerSpeed = 2.6;
-const aiChaseSpeed = 2.4;
-const aiRunSpeed = 2.8;
-const aiWanderSpeed = 1.0;
-const velocitySmoothing = 0.18;
+const playerSpeed = 1.5;
+const aiChaseSpeed = 1.5;
+const aiRunSpeed = 1.5;
+const aiWanderSpeed = 1.5;
 
-/* perception & behavior */
-const threatRange = 240;
+const threatRange = 280;
 const separationDist = 60;
 const separationStrength = 0.6;
-const directionUpdateThreshold = 0.25;
 
-/* input */
+let countdown = 3;
+let countdownDiv = document.getElementById("countdown");
+let countdownInterval = null;
+let gameStarted = false;
+let gameOver = false;
+
 const keys = {};
 document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-/* ---------- Initialize game ---------- */
 function initGame() {
   players = [];
   const shuffledAI = npcSprites.slice().sort(() => 0.5 - Math.random());
 
   for (let i = 0; i < totalPlayers; i++) {
     const sprite = (i === 0) ? playerSprite : shuffledAI[i - 1];
+    const charSize = 70;
+
     players.push({
-      x: Math.random() * (playArea.width - 100),
-      y: playArea.y + Math.random() * (playArea.height - 100),
-      w: 100, h: 100,
+      x: Math.random() * (playArea.width - charSize),
+      y: playArea.y + Math.random() * (playArea.height - charSize),
+      w: charSize, h: charSize,
       isHuman: i === 0,
       sprite,
       frameX: 0, frameY: 0, frameCounter: 0,
@@ -221,44 +433,83 @@ function initGame() {
       lastDir: 0,
       wanderTimer: 0,
       wanderDir: { x: 0, y: 0 },
-      targetIndex: null,
-      targetTimer: 0
+      isTagger: false,
+      flashTimer: 0
     });
   }
   players[Math.floor(Math.random() * players.length)].isTagger = true;
+
+  // reset control variables
+  countdown = 3;
+  gameStarted = false;
+  gameOver = false;
+  if (countdownDiv) countdownDiv.style.display = "block";
+  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  startCountdown();
 }
-initGame();
 
-/* ---------- Countdown ---------- */
-let countdown = 3;
-let gameStarted = false;
-const countdownDiv = document.getElementById("countdown");
-const countdownInterval = setInterval(() => {
-  countdownDiv.textContent = countdown > 0 ? countdown : "GO!";
-  if (countdown === 0) {
-    clearInterval(countdownInterval);
-    setTimeout(() => { countdownDiv.style.display = "none"; gameStarted = true; }, 1000);
+function startCountdown() {
+  if (!countdownDiv) countdownDiv = document.getElementById("countdown");
+  countdown = 3;
+  countdownDiv.textContent = countdown;
+  countdownInterval = setInterval(() => {
+    countdownDiv.textContent = countdown > 0 ? countdown : "GO!";
+    if (countdown === 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      setTimeout(() => {
+        if (countdownDiv) countdownDiv.style.display = "none";
+        gameStarted = true;
+      }, 800);
+    }
+    countdown--;
+  }, 1000);
+}
+initGame(); // initial setup
+
+// === MODAL ELEMENTS & SAFE LISTENERS ===
+const gameOverModal = document.getElementById("gameOverModal");
+const playAgainBtn = document.getElementById("playAgainBtn");
+const quitGameBtn = document.getElementById("quitGameBtn");
+
+function resetGame() {
+  // hide modal
+  if (gameOverModal) gameOverModal.style.visibility = "hidden";
+
+  // re-init everything without a full reload
+  initGame();
+  // start loop if images already loaded
+  if (imagesLoaded >= totalImages) {
+    loop();
   }
-  countdown--;
-}, 1000);
+}
 
-let gameOver = false;
+if (playAgainBtn) {
+  playAgainBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    resetGame();
+  });
+}
+if (quitGameBtn) {
+  quitGameBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = "index.html";
+  });
+}
 
-/* ---------- Helpers ---------- */
+// helpers
 function clampToPlayArea(p) {
   if (p.x < playArea.x) p.x = playArea.x;
   if (p.y < playArea.y) p.y = playArea.y;
   if (p.x > playArea.x + playArea.width - p.w) p.x = playArea.x + playArea.width - p.w;
   if (p.y > playArea.y + playArea.height - p.h) p.y = playArea.y + playArea.height - p.h;
 }
-function length(x, y) { return Math.hypot(x, y); }
 function normalize(x, y) {
   const d = Math.hypot(x, y);
   return d === 0 ? { x: 0, y: 0 } : { x: x / d, y: y / d };
 }
 function centerOf(p) { return { x: p.x + p.w / 2, y: p.y + p.h / 2 }; }
 
-/* ------ Animation helper: only animate when moving ------ */
 function animate(p, maxFrames, isMoving) {
   if (isMoving) {
     p.frameCounter++;
@@ -272,215 +523,165 @@ function animate(p, maxFrames, isMoving) {
   }
 }
 
-/* ---------- Update loop ---------- */
+// main update
 function update() {
   if (!gameStarted || gameOver) return;
 
   const p1 = players[0];
   let moved = false;
-  p1.vx = 0; p1.vy = 0;
   if (keys["w"]) { p1.y -= playerSpeed; p1.frameY = 3; p1.lastDir = 3; moved = true; }
   if (keys["s"]) { p1.y += playerSpeed; p1.frameY = 0; p1.lastDir = 0; moved = true; }
   if (keys["a"]) { p1.x -= playerSpeed; p1.frameY = 1; p1.lastDir = 1; moved = true; }
   if (keys["d"]) { p1.x += playerSpeed; p1.frameY = 2; p1.lastDir = 2; moved = true; }
-  if (moved) animate(p1, playerColumns, true);
-  else { animate(p1, playerColumns, false); p1.frameY = p1.lastDir; }
+  animate(p1, playerColumns, moved);
   clampToPlayArea(p1);
 
-  const taggers = players.filter(p => p.isTagger);
-
+  // AI movement
   for (let i = 1; i < players.length; i++) {
     const ai = players[i];
     const aiC = centerOf(ai);
+    let move = { x: 0, y: 0 };
+    let nearestTagger = null, nearestRunner = null;
+    let nearestTaggerDist = Infinity, nearestRunnerDist = Infinity;
 
-    let sepX = 0, sepY = 0;
-    let neighbors = 0;
-    for (let j = 1; j < players.length; j++) {
-      if (j === i) continue;
-      const other = players[j];
+    for (const other of players) {
+      if (ai === other) continue;
       const oC = centerOf(other);
-      const dx = aiC.x - oC.x, dy = aiC.y - oC.y;
-      const d = Math.hypot(dx, dy);
-      if (d > 0 && d < separationDist) {
-        sepX += (dx / d) * (separationDist - d);
-        sepY += (dy / d) * (separationDist - d);
-        neighbors++;
+      const dx = oC.x - aiC.x, dy = oC.y - aiC.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (other.isTagger && dist < nearestTaggerDist) {
+        nearestTaggerDist = dist; nearestTagger = other;
+      }
+      if (!other.isTagger && dist < nearestRunnerDist) {
+        nearestRunnerDist = dist; nearestRunner = other;
       }
     }
-    if (neighbors > 0) { sepX = (sepX / neighbors) * separationStrength; sepY = (sepY / neighbors) * separationStrength; }
 
-    let desiredVX = 0, desiredVY = 0;
-
-    if (!ai.isTagger) {
-      let nearest = null, minDist = Infinity;
-      for (let t of taggers) {
-        const tC = centerOf(t);
-        const dx = aiC.x - tC.x, dy = aiC.y - tC.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < minDist) { minDist = dist; nearest = t; }
-      }
-
-      if (nearest && minDist < threatRange) {
-        const tC = centerOf(nearest);
-        let dx = aiC.x - tC.x, dy = aiC.y - tC.y;
-        const n = normalize(dx, dy);
-        desiredVX = n.x * aiRunSpeed;
-        desiredVY = n.y * aiRunSpeed;
-      } else {
-        if (ai.wanderTimer <= 0) {
-          const angle = Math.random() * Math.PI * 2;
-          ai.wanderDir = { x: Math.cos(angle), y: Math.sin(angle) };
-          ai.wanderTimer = 40 + Math.random() * 90;
-        }
-        desiredVX = ai.wanderDir.x * aiWanderSpeed;
-        desiredVY = ai.wanderDir.y * aiWanderSpeed;
-        ai.wanderTimer--;
-      }
+    if (ai.isTagger && nearestRunner) {
+      const dir = normalize(nearestRunner.x - ai.x, nearestRunner.y - ai.y);
+      move.x += dir.x * aiChaseSpeed;
+      move.y += dir.y * aiChaseSpeed;
+    } else if (!ai.isTagger && nearestTagger && nearestTaggerDist < threatRange) {
+      const dir = normalize(ai.x - nearestTagger.x, ai.y - nearestTagger.y);
+      move.x += dir.x * aiRunSpeed;
+      move.y += dir.y * aiRunSpeed;
     } else {
-      if (!ai.targetIndex || players[ai.targetIndex]?.isTagger || ai.targetTimer <= 0) {
-        const runners = players.map((p, idx) => ({ p, idx })).filter(x => !x.p.isTagger);
-        if (runners.length > 0) {
-          if (Math.random() < 0.25) { const r = runners[Math.floor(Math.random() * runners.length)]; ai.targetIndex = r.idx; }
-          else {
-            let nearestIdx = runners[0].idx, nearestDist = Infinity;
-            for (const r of runners) {
-              const c = centerOf(r.p);
-              const dx = c.x - aiC.x, dy = c.y - aiC.y;
-              const dist = Math.hypot(dx, dy);
-              if (dist < nearestDist) { nearestDist = dist; nearestIdx = r.idx; }
-            }
-            ai.targetIndex = nearestIdx;
-          }
-          ai.targetTimer = 40 + Math.random() * 120;
-        } else { ai.targetIndex = null; ai.targetTimer = 10; }
-      } else { ai.targetTimer--; }
+      ai.wanderTimer--;
+      if (ai.wanderTimer <= 0) {
+        ai.wanderTimer = 60 + Math.random() * 60;
+        ai.wanderDir = normalize(Math.random() - 0.5, Math.random() - 0.5);
+      }
+      move.x += ai.wanderDir.x * aiWanderSpeed;
+      move.y += ai.wanderDir.y * aiWanderSpeed;
+    }
 
-      const target = players[ai.targetIndex];
-      if (target) {
-        const tC = centerOf(target);
-        let dx = tC.x - aiC.x, dy = tC.y - aiC.y;
-        const n = normalize(dx, dy);
-        desiredVX = n.x * aiChaseSpeed;
-        desiredVY = n.y * aiChaseSpeed;
+    // separation
+    for (const other of players) {
+      if (ai === other) continue;
+      const dx = ai.x - other.x;
+      const dy = ai.y - other.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < separationDist && dist > 0) {
+        move.x += (dx / dist) * separationStrength;
+        move.y += (dy / dist) * separationStrength;
       }
     }
 
-    desiredVX += sepX;
-    desiredVY += sepY;
-
-    const desiredMag = Math.hypot(desiredVX, desiredVY);
-    const maxDesired = ai.isTagger ? aiChaseSpeed : (Math.hypot(desiredVX, desiredVY) > aiRunSpeed ? aiRunSpeed : aiWanderSpeed + 0.5);
-    if (desiredMag > maxDesired && desiredMag > 0) { desiredVX = (desiredVX / desiredMag) * maxDesired; desiredVY = (desiredVY / desiredMag) * maxDesired; }
-
-    ai.vx += (desiredVX - ai.vx) * velocitySmoothing;
-    ai.vy += (desiredVY - ai.vy) * velocitySmoothing;
-
-    ai.x += ai.vx;
-    ai.y += ai.vy;
-
-    const speedMag = Math.hypot(ai.vx, ai.vy);
-    if (speedMag > directionUpdateThreshold) {
-      if (Math.abs(ai.vx) > Math.abs(ai.vy)) { ai.frameY = ai.vx > 0 ? 2 : 1; }
-      else { ai.frameY = ai.vy > 0 ? 0 : 3; }
-      ai.lastDir = ai.frameY;
-    } else { ai.frameY = ai.lastDir; }
-
-    animate(ai, npcColumns, speedMag > 0.2);
+    ai.x += move.x;
+    ai.y += move.y;
     clampToPlayArea(ai);
+
+    const isMoving = Math.abs(move.x) > 0.1 || Math.abs(move.y) > 0.1;
+    animate(ai, npcColumns, isMoving);
   }
 
-  const taggersNow = players.filter(p => p.isTagger);
-  for (const tagger of taggersNow) {
+  // tagging: everyone can get tagged
+  const touchRange = 40;
+  for (const tagger of players.filter(p => p.isTagger)) {
     for (const runner of players.filter(p => !p.isTagger)) {
-      const tc = centerOf(tagger), rc = centerOf(runner);
-      const d = Math.hypot(tc.x - rc.x, tc.y - rc.y);
-      const threshold = (tagger.w + runner.w) * 0.28;
-      if (d < threshold) runner.isTagger = true;
+      const dx = runner.x - tagger.x;
+      const dy = runner.y - tagger.y;
+      const distance = Math.hypot(dx, dy);
+      if (distance <= touchRange && tagger.flashTimer <= 0) {
+        // runner becomes tagger
+        runner.isTagger = true;
+        runner.flashTimer = 10;
+      }
     }
   }
 
-  if (players.filter(p => !p.isTagger).length === 0) {
+  // check game over (all tagged)
+  if (players.every(p => p.isTagger)) {
     gameOver = true;
-    const modal = document.getElementById("gameOverModal");
-    if (modal) modal.style.visibility = "visible";
+    if (gameOverModal) {
+      gameOverModal.style.visibility = "visible";
+    } else {
+      // fallback
+      alert("Everyone is tagged! Game over!");
+    }
   }
 }
 
-/* ---------- Draw ---------- */
-function drawArrow(p, color) {
-  const offset = 1;
-  ctx.fillStyle = color;
+function drawArrowAbovePlayer(p) {
+  const arrowY = p.y - 10;
   ctx.beginPath();
-  ctx.moveTo(p.x + p.w / 2, p.y - offset);
-  ctx.lineTo(p.x + p.w / 2 - 10, p.y - offset - 10);
-  ctx.lineTo(p.x + p.w / 2 + 10, p.y - offset - 10);
+  ctx.moveTo(p.x + p.w / 2 - 10, arrowY);
+  ctx.lineTo(p.x + p.w / 2 + 10, arrowY);
+  ctx.lineTo(p.x + p.w / 2, arrowY - 15);
   ctx.closePath();
+  ctx.fillStyle = "red";
   ctx.fill();
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (mapLoaded) ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
+  else { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
 
   for (const p of players) {
     const img = p.sprite;
-    const frameW = (img && img.frameW) ? img.frameW : Math.floor(img.width / playerColumns);
-    const frameH = (img && img.frameH) ? img.frameH : Math.floor(img.height / playerRows);
+    const frameW = img.frameW || (img.width / 4);
+    const frameH = img.frameH || (img.height / 4);
 
-    if (img && img.complete && frameW > 0 && frameH > 0) {
-      ctx.drawImage(img, p.frameX * frameW, p.frameY * frameH, frameW, frameH, p.x, p.y, p.w, p.h);
-    } else {
-      ctx.fillStyle = "#888";
-      ctx.fillRect(p.x, p.y, p.w, p.h);
-    }
+    if (p.flashTimer > 0) {
+      ctx.globalAlpha = 0.6;
+      p.flashTimer--;
+    } else ctx.globalAlpha = 1.0;
 
-    if (p.isTagger) drawArrow(p, "red");
+    ctx.drawImage(img,
+      p.frameX * frameW, p.frameY * frameH, frameW, frameH,
+      p.x, p.y, p.w, p.h);
+    ctx.globalAlpha = 1.0;
+
+    if (p.isTagger) drawArrowAbovePlayer(p); // only arrow indicator
   }
-
-  if (settingsIcon.complete) ctx.drawImage(settingsIcon, settingsBtn.x, settingsBtn.y, settingsBtn.w, settingsBtn.h);
 }
 
-/* ---------- Main loop ---------- */
 function loop() {
   update();
   draw();
-  requestAnimationFrame(loop);
+  if (!gameOver) requestAnimationFrame(loop);
 }
 
-/* ---------- UI handlers ---------- */
-document.getElementById("restartBtn").addEventListener("click", () => {
-  const modal = document.getElementById("gameOverModal");
-  if (modal) modal.style.visibility = "hidden";
-  gameOver = false;
-  initGame();
-  countdown = 3; gameStarted = false;
-  if (countdownDiv) { countdownDiv.style.display = "block"; countdownDiv.textContent = countdown; }
-  let newInterval = setInterval(() => {
-    if (countdownDiv) countdownDiv.textContent = countdown > 0 ? countdown : "GO!";
-    if (countdown === 0) {
-      clearInterval(newInterval);
-      setTimeout(() => { if (countdownDiv) countdownDiv.style.display = "none"; gameStarted = true; }, 800);
-    }
-    countdown--;
-  }, 1000);
+// settings modal / controls
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const changeCharacterBtn = document.getElementById("changeCharacterBtn");
+const quitBtn = document.getElementById("quitBtn");
+
+if (settingsBtn) settingsBtn.addEventListener("click", () => settingsModal.style.visibility = "visible");
+if (settingsModal) settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) settingsModal.style.visibility = "hidden"; });
+
+if (changeCharacterBtn) changeCharacterBtn.addEventListener("click", () => {
+  const currentMap = localStorage.getItem("selectedMap") || selectedMap;
+  window.location.href = "characters.html?map=" + encodeURIComponent(currentMap);
+});
+if (quitBtn) quitBtn.addEventListener("click", () => {
+  window.location.href = "index.html";
 });
 
-document.getElementById("quitBtn").addEventListener("click", () => { window.location.href = "index.html"; });
-document.getElementById("changeCharBtn").addEventListener("click", () => { window.location.href = "characters.html"; });
-
-canvas.addEventListener("click", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const mx = (e.clientX - rect.left) * scaleX;
-  const my = (e.clientY - rect.top) * scaleY;
-
-  // Settings button
-  if (mx >= settingsBtn.x && mx <= settingsBtn.x + settingsBtn.w &&
-      my >= settingsBtn.y && my <= settingsBtn.y + settingsBtn.h) {
-    const s = document.getElementById("settingsModal");
-    if (s) s.style.visibility = "visible";
-  }
-});
+const restartBtn = document.getElementById("restartBtn");
+if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
 </script>
 
 </body>
