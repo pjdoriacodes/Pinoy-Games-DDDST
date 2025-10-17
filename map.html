@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose Map - Mataya-Taya</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  background: url("bg.png") center center / cover no-repeat #0a0a14;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  font-family: 'Press Start 2P', cursive;
+  overflow: hidden;
+  position: relative;
+  color: #fff;
+}
+
+/* CRT SCANLINE EFFECT */
+body::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  animation: flicker 1.5s infinite;
+  z-index: 2;
+}
+
+/* BACK BUTTON (OUTSIDE TOP-LEFT) */
+.back-btn {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  width: 65px;
+  height: 65px;
+  z-index: 4;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 0 6px #000);
+}
+
+.back-btn img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.back-btn:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 10px #ffcc00);
+}
+
+/* PAGE TITLE */
+.title {
+  font-size: 32px;
+  color: #ffcc00;
+  margin-top: 100px;
+  margin-bottom: 80px;
+  text-shadow: 2px 2px #000, 0 0 8px #ff6600, 0 0 15px #ff0000;
+  animation: glow 1.2s infinite alternate;
+  text-align: center;
+  letter-spacing: 3px;
+  z-index: 3;
+}
+
+/* MAP GRID LAYOUT */
+.map-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 80px;
+  z-index: 3;
+}
+
+/* MAP CARD STYLE */
+.map-card {
+  width: 300px;
+  height: 200px;
+  border: 4px solid #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px #000;
+  position: relative;
+}
+
+.map-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  transition: transform 0.3s ease;
+}
+
+.map-card:hover img {
+  transform: scale(1.08);
+}
+
+.map-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #ffcc00;
+  border-color: #ffcc00;
+}
+
+/* MAP NAME LABEL */
+.map-name {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  background: rgba(0,0,0,0.8);
+  font-size: 12px;
+  color: #ffcc00;
+  padding: 8px 0;
+  border-top: 2px solid #ffcc00;
+}
+
+/* ANIMATIONS */
+@keyframes glow {
+  from { text-shadow: 2px 2px #000, 0 0 8px #ff6600; }
+  to { text-shadow: 2px 2px #000, 0 0 16px #ff0000; }
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.08; }
+  20%, 24%, 55% { opacity: 0.2; }
+}
+
+</style>
+</head>
+<body>
+  <div class="map-wrapper">
+    <div class="back-btn" onclick="window.location.href='index.html'">
+      <img src="back.png" alt="Back">
+    </div>
+
+    <div class="title">CHOOSE YOUR MAP</div>
+
+   <div class="map-container">
+  <div class="map-card" onclick="selectMap('place.jpg')">
+    <img src="place.jpg" alt="Plaza">
+    <div class="map-name">DAY AT PLAZA</div>
+  </div>
+  <div class="map-card" onclick="selectMap('night.jpg')">
+    <img src="night.jpg" alt="Barangay Court">
+    <div class="map-name">NIGHT AT PLAZA</div>
+  </div>
+</div>
+
+  </div>
+
+<script>
+function selectMap(mapFile) {
+  // Redirect to character selection, passing the chosen map
+  window.location.href = "characters.html?map=" + encodeURIComponent(mapFile);
+}
+</script>
+
+</body>
+</html>
