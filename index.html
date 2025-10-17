@@ -5,151 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pinoy Game</title>
    <link rel="icon" type="image/png" href="favicon.png">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+ <style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-    body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(circle, #1a1a2e 0%, #0f0f1c 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: 'Press Start 2P', cursive;
-      image-rendering: pixelated;
-      overflow: hidden;
-    }
+  body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle, #1a1a2e 0%, #0f0f1c 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Press Start 2P', cursive;
+    image-rendering: pixelated;
+    overflow: hidden;
+  }
 
-    /* CRT effect */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(
-        rgba(255,255,255,0.03) 0px,
-        rgba(255,255,255,0.03) 2px,
-        transparent 2px,
-        transparent 4px
-      );
-      z-index: 1000;
-      pointer-events: none;
-    }
+  /* CRT effect */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+    z-index: 1000;
+    pointer-events: none;
+  }
 
-    .game-wrapper {
-      width: 60em;
-      height: 37em;
-      background: url("bg.png") center/cover no-repeat, #101020;
-      border: 4px solid #ffcc00;
-      position: relative;
-      box-shadow: 0 0 10px #ffcc00;
-      padding: 20px;
-      color: #fff;
-      image-rendering: pixelated;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-      animation: glow 2s infinite alternate;
-    }
-    
-    /* CRT / Scanline overlay */
-    .game-wrapper::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(0,0,0,0.15),
-        rgba(0,0,0,0.15) 2px,
-        transparent 2px,
-        transparent 4px
-      );
-      pointer-events: none;
-      animation: scan 5s linear infinite;
-    }
-    
-    /* Simple pulsing glow animation */
-    @keyframes glow {
-      0% { box-shadow: 0 0 10px #ffcc00; }
-      100% { box-shadow: 0 0 30px #ff9900; }
-    }
+  .game-wrapper {
+    width: 100vw;
+    height: 100vh;
+    background: url("bg.png") center/cover no-repeat, #101020;
+    border: 4px solid #ffcc00;
+    position: relative;
+    box-shadow: 0 0 10px #ffcc00;
+    color: #fff;
+    image-rendering: pixelated;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    animation: glow 2s infinite alternate;
+  }
 
+  /* CRT / Scanline overlay */
+  .game-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.15),
+      rgba(0,0,0,0.15) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+    pointer-events: none;
+    animation: scan 5s linear infinite;
+  }
 
-    .title {
-      text-align: center;
-      font-size: 48px;
-      color: #ffcc00;
-      text-shadow: 3px 3px #000, 0 0 10px #ffcc00;
-      margin-top: 30px;
-      animation: flicker 2s infinite;
-    }
+  @keyframes glow {
+    0% { box-shadow: 0 0 10px #ffcc00; }
+    100% { box-shadow: 0 0 30px #ff3300; }
+  }
 
-    @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-      20%, 24%, 55% { opacity: 0.4; }
-    }
+  .title {
+    text-align: center;
+    font-size: 48px;
+    color: #ffcc00;
+    text-shadow: 3px 3px #000, 0 0 10px #ffcc00;
+    margin-top: 40px;
+    animation: flicker 2s infinite;
+  }
 
-    .menu {
-      position: absolute;
-      top: 55%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(44, 44, 84, 0.9);
-      padding: 20px 40px;
-      border: 3px solid #fff;
-      box-shadow: inset 0px 0px 10px #000, 0px 0px 15px #000;
-      animation: popIn 1s ease;
-    }
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.4; }
+  }
 
-    @keyframes popIn {
-      0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
+  .menu {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(44, 44, 84, 0.9);
+    padding: 20px 40px;
+    border: 3px solid #fff;
+    box-shadow: inset 0px 0px 10px #000, 0px 0px 15px #000;
+    animation: popIn 1s ease;
+  }
 
-    .menu button {
-      display: block;
-      width: 250px;
-      margin: 15px auto;
-      padding: 15px;
-      font-size: 14px;
-      color: white;
-      cursor: pointer;
-      border: 3px solid #fff;
-      text-transform: uppercase;
-      background: #e74c3c;
-      transition: transform 0.2s, box-shadow 0.2s;
-      image-rendering: pixelated;
-    }
+  @keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
 
-    .menu button:hover {
-      transform: scale(1.15) translateY(-4px);
-      box-shadow: 0 0 15px #fff;
-    }
+  .menu button {
+    display: block;
+    width: 250px;
+    margin: 15px auto;
+    padding: 15px;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    border: 3px solid #fff;
+    text-transform: uppercase;
+    background: #e74c3c;
+    transition: transform 0.2s, box-shadow 0.2s;
+    image-rendering: pixelated;
+  }
 
-    .btn-start { background: #2ecc71; }  /* green */
-    .btn-how   { background: #f1c40f; color: #000; }  /* yellow */
+  .menu button:hover {
+    transform: scale(1.15) translateY(-4px);
+    box-shadow: 0 0 15px #fff;
+  }
 
-    /* footer */
-    .footer {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      color: #fff;
-      text-shadow: 1px 1px #000;
-      animation: fadeIn 2s ease-in-out;
-    }
+  .btn-start { background: #2ecc71; }  /* green */
+  .btn-how   { background: #f1c40f; color: #000; }  /* yellow */
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+  .footer {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 1px 1px #000;
+    animation: fadeIn 2s ease-in-out;
+  }
 
-  </style>
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
 </head>
 <body>
    <div class="game-wrapper" id="gameWrapper">
