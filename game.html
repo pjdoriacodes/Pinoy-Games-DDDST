@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
 <title>Mataya-Taya Game with Sprites - Improved AI</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -18,48 +17,7 @@ body {
   width: 100vw;
   overflow: hidden;
   font-family: 'Press Start 2P', cursive;
-  touch-action: none; /* important for mobile touch */
 }
-
-/* Joystick Styles */
-.joystick {
-  position: fixed;
-  bottom: 60px;
-  left: 60px;
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, #222 60%, #000 100%);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: none;
-  z-index: 999; /* so it stays above your game */
-}
-
-.stick {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: radial-gradient(circle at top, #666, #111);
-  touch-action: none;
-  position: relative;
-}
-
-.arrow {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 14px solid rgba(255, 255, 255, 0.8);
-  transform: translateX(-50%);
-}
-
 canvas {
   width: 100vw;
   height: 100vh;
@@ -322,41 +280,35 @@ canvas {
   from { background: rgba(0,0,0,0); }
   to { background: rgba(0,0,0,0.95); }
 }
-
-.joystick {
+ .joystick {
     position: fixed;
-    bottom: 60px;
+    bottom: 80px;
     right: 40px;
-    width: 130px;
-    height: 130px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     background: radial-gradient(circle at center, #2a2a2a 60%, #000 100%);
     border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
-    z-index: 999;
-    display: none;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
     touch-action: none;
+    display: none; /* Hidden by default (for laptops) */
+    z-index: 999;
   }
 
-  /* Show joystick only on mobile/tablet */
-  @media (max-width: 1024px) {
-    .joystick {
-      display: block;
-    }
-  }
-
+  /* Stick (movable inner circle) */
   .stick {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     background: radial-gradient(circle at top, #666, #111);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: 0.05s linear;
   }
 
+  /* Direction indicator arrow */
   .arrow {
     position: absolute;
     top: 10%;
@@ -367,6 +319,13 @@ canvas {
     border-right: 8px solid transparent;
     border-bottom: 14px solid rgba(255, 255, 255, 0.8);
     transform: translateX(-50%);
+  }
+
+  /* Visible only on mobile */
+  @media (max-width: 768px) {
+    .joystick {
+      display: block;
+    }
   }
 </style>
 </head>
@@ -394,12 +353,16 @@ canvas {
   </div>
 </div>
 
-<div class="joystick" id="joystick">
-  <div class="stick" id="stick">
-    <div class="arrow" id="arrow"></div>
+<div id="mobileControls">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <button class="ctrl-btn" data-key="w">▲</button>
+    <div style="display: flex;">
+      <button class="ctrl-btn" data-key="a">◀</button>
+      <button class="ctrl-btn" data-key="s">▼</button>
+      <button class="ctrl-btn" data-key="d">▶</button>
+    </div>
   </div>
 </div>
-
 <script>
 function getQueryParams() {
   const params = {};
@@ -777,45 +740,18 @@ if (quitBtn) quitBtn.addEventListener("click", () => {
 const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
 
-const joystick = document.getElementById('joystick');
-const stick = document.getElementById('stick');
-const arrow = document.getElementById('arrow');
-
-let active = false;
-let center = { x: 0, y: 0 };
-
-function updateCenter() {
-  const rect = joystick.getBoundingClientRect();
-  center.x = rect.left + rect.width / 2;
-  center.y = rect.top + rect.height / 2;
-}
-
-joystick.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  active = true;
-  updateCenter();
+const controlButtons = document.querySelectorAll('.ctrl-btn[data-key]');
+controlButtons.forEach(btn => {
+  const key = btn.getAttribute('data-key');
+  btn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+  btn.addEventListener('touchend', e => {
+    e.preventDefault();
+    keys[key] = false;
+  });
 });
-
-document.addEventListener('touchmove', (e) => {
-  if (!active) return;
-  const touch = e.touches[0];
-  const dx = touch.clientX - center.x;
-  const dy = touch.clientY - center.y;
-  const distance = Math.min(Math.sqrt(dx * dx + dy * dy), 40);
-  const angle = Math.atan2(dy, dx);
-  const x = distance * Math.cos(angle);
-  const y = distance * Math.sin(angle);
-
-  stick.style.transform = `translate(${x}px, ${y}px)`;
-  arrow.style.transform = `translateX(-50%) rotate(${angle}rad)`;
-});
-
-document.addEventListener('touchend', () => {
-  active = false;
-  stick.style.transform = `translate(0, 0)`;
-  arrow.style.transform = `translateX(-50%) rotate(0deg)`;
-});
-
 </script>
 
 </body>
