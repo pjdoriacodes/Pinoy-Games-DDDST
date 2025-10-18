@@ -280,7 +280,52 @@ canvas {
   from { background: rgba(0,0,0,0); }
   to { background: rgba(0,0,0,0.95); }
 }
+/* --- MOBILE CONTROLLER --- */
+#mobileControls {
+  position: absolute;
+  bottom: 40px;
+  left: 30px;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  opacity: 0.9;
+  user-select: none;
+}
 
+.ctrl-btn {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 204, 0, 0.2);
+  border: 2px solid #ffcc00;
+  border-radius: 8px;
+  margin: 5px;
+  color: #ffcc00;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
+  box-shadow: 0 0 10px #ffcc00;
+}
+.ctrl-btn:active {
+  background: rgba(255, 204, 0, 0.6);
+  transform: scale(0.95);
+}
+
+/* right-side button group */
+#actionButtons {
+  position: absolute;
+  bottom: 60px;
+  right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 999;
+}
 </style>
 </head>
 <body>
@@ -304,6 +349,17 @@ canvas {
   <div id="gameOverContent" class="retroContent">
     <h1>GAME OVER!</h1>
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
+  </div>
+</div>
+
+<div id="mobileControls">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <button class="ctrl-btn" data-key="w">▲</button>
+    <div style="display: flex;">
+      <button class="ctrl-btn" data-key="a">◀</button>
+      <button class="ctrl-btn" data-key="s">▼</button>
+      <button class="ctrl-btn" data-key="d">▶</button>
+    </div>
   </div>
 </div>
 <script>
@@ -682,6 +738,19 @@ if (quitBtn) quitBtn.addEventListener("click", () => {
 
 const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
+
+const controlButtons = document.querySelectorAll('.ctrl-btn[data-key]');
+controlButtons.forEach(btn => {
+  const key = btn.getAttribute('data-key');
+  btn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+  btn.addEventListener('touchend', e => {
+    e.preventDefault();
+    keys[key] = false;
+  });
+});
 </script>
 
 </body>
