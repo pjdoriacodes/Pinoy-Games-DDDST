@@ -281,6 +281,50 @@ canvas {
   to { background: rgba(0,0,0,0.95); }
 }
 
+/* 🎮 MOBILE CONTROLS (HIDDEN ON PC) */
+#mobileControls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: none; /* default hidden for PC */
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 50;
+}
+
+#mobileControls .mid {
+  display: flex;
+  gap: 10px;
+}
+
+.control-btn {
+  width: 70px;
+  height: 70px;
+  font-size: 32px;
+  color: #000;
+  background: #ffcc00;
+  border: 4px solid #000;
+  border-radius: 15px;
+  text-align: center;
+  line-height: 65px;
+  font-family: 'Press Start 2P', cursive;
+  user-select: none;
+  box-shadow: 0 0 10px #ffcc00;
+  transition: transform 0.1s ease, box-shadow 0.2s;
+}
+
+.control-btn:active {
+  transform: scale(0.9);
+  box-shadow: 0 0 20px #ffaa00;
+}
+
+/* Show only on mobile screens */
+@media (max-width: 900px) {
+  #mobileControls {
+    display: flex;
+  }
+}
 </style>
 </head>
 <body>
@@ -305,6 +349,16 @@ canvas {
     <h1>GAME OVER!</h1>
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
   </div>
+</div>
+
+<!-- 🎮 MOBILE CONTROLLER -->
+<div id="mobileControls">
+  <div class="control-btn up" data-dir="up">▲</div>
+  <div class="mid">
+    <div class="control-btn left" data-dir="left">◀</div>
+    <div class="control-btn right" data-dir="right">▶</div>
+  </div>
+  <div class="control-btn down" data-dir="down">▼</div>
 </div>
 <script>
 function getQueryParams() {
@@ -682,6 +736,30 @@ if (quitBtn) quitBtn.addEventListener("click", () => {
 
 const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
+
+// === MOBILE CONTROLS ===
+const mobileControls = document.getElementById("mobileControls");
+const buttons = document.querySelectorAll(".control-btn");
+
+buttons.forEach(btn => {
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    if (dir === "up") keys["w"] = true;
+    if (dir === "down") keys["s"] = true;
+    if (dir === "left") keys["a"] = true;
+    if (dir === "right") keys["d"] = true;
+  });
+
+  btn.addEventListener("touchend", e => {
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    if (dir === "up") keys["w"] = false;
+    if (dir === "down") keys["s"] = false;
+    if (dir === "left") keys["a"] = false;
+    if (dir === "right") keys["d"] = false;
+  });
+});
 </script>
 
 </body>
