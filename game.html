@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta charset="UTF-8" />
 <title>Mataya-Taya Game with Sprites - Improved AI</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -282,8 +282,7 @@ canvas {
   to { background: rgba(0,0,0,0.95); }
 }
 
-/* Joystick container */
-  .joystick {
+.joystick {
     position: fixed;
     bottom: 60px;
     right: 40px;
@@ -293,19 +292,18 @@ canvas {
     background: radial-gradient(circle at center, #2a2a2a 60%, #000 100%);
     border: 2px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
-    touch-action: none;
-    display: none; /* hidden on desktop by default */
     z-index: 9999;
+    display: none;
+    touch-action: none;
   }
 
-  /* Show joystick on mobile */
+  /* Show joystick only on mobile/tablet */
   @media (max-width: 1024px) {
     .joystick {
       display: block;
     }
   }
 
-  /* Movable stick */
   .stick {
     position: absolute;
     top: 50%;
@@ -318,7 +316,6 @@ canvas {
     transition: 0.05s linear;
   }
 
-  /* Arrow indicator */
   .arrow {
     position: absolute;
     top: 10%;
@@ -356,12 +353,12 @@ canvas {
   </div>
 </div>
 
-
 <div class="joystick" id="joystick">
   <div class="stick" id="stick">
     <div class="arrow" id="arrow"></div>
   </div>
 </div>
+
 <script>
 function getQueryParams() {
   const params = {};
@@ -743,42 +740,46 @@ if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
   const stick = document.getElementById('stick');
   const arrow = document.getElementById('arrow');
 
-  let active = false;
-  let center = { x: 0, y: 0 };
+  let dragging = false;
+  let centerX, centerY;
 
-  joystick.addEventListener('touchstart', start, false);
-  joystick.addEventListener('touchmove', move, false);
-  joystick.addEventListener('touchend', end, false);
-
-  function start(e) {
-    active = true;
+  // Get joystick center
+  function updateCenter() {
     const rect = joystick.getBoundingClientRect();
-    center.x = rect.left + rect.width / 2;
-    center.y = rect.top + rect.height / 2;
+    centerX = rect.left + rect.width / 2;
+    centerY = rect.top + rect.height / 2;
   }
 
-  function move(e) {
-    if (!active) return;
+  // Start drag
+  joystick.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    updateCenter();
+  });
+
+  // Move stick
+  window.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
     e.preventDefault();
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - center.x;
-    const deltaY = touch.clientY - center.y;
-    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), 40);
-    const angle = Math.atan2(deltaY, deltaX);
+
+    const dx = e.clientX - centerX;
+    const dy = e.clientY - centerY;
+    const distance = Math.min(Math.sqrt(dx * dx + dy * dy), 40);
+    const angle = Math.atan2(dy, dx);
 
     const x = distance * Math.cos(angle);
     const y = distance * Math.sin(angle);
+
     stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-
-    // Rotate arrow to direction
     arrow.style.transform = `translateX(-50%) rotate(${angle}rad)`;
-  }
+  });
 
-  function end() {
-    active = false;
+  // End drag
+  window.addEventListener('pointerup', () => {
+    if (!dragging) return;
+    dragging = false;
     stick.style.transform = 'translate(-50%, -50%)';
     arrow.style.transform = 'translateX(-50%) rotate(0deg)';
-  }
+  });
 </script>
 
 </body>
