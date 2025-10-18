@@ -290,41 +290,41 @@ canvas {
 /* 🎮 MOBILE CONTROLS (HIDDEN ON PC) */
 #mobileControls {
   position: fixed;
-  bottom: 25px;
-  right: 25px;
-  display: none; /* Hidden on PC by default */
+  bottom: 50px;         /* Slightly higher for better thumb reach */
+  right: 50px;          /* Far right placement */
+  display: none;        /* Hidden on PC by default */
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  z-index: 9999; /* Always on top of the game canvas */
-  touch-action: none; /* Prevents double tap zoom or scrolling while pressing */
+  gap: 18px;            /* Increased spacing for large buttons */
+  z-index: 9999;        /* Always on top of the game canvas */
+  touch-action: none;   /* Prevents zoom or scroll on touch */
 }
 
 #mobileControls .mid {
   display: flex;
-  gap: 12px;
+  gap: 18px;
 }
 
 .control-btn {
-  width: 70px;
-  height: 70px;
-  font-size: 32px;
+  width: 110px;           /* ⬆️ Bigger size */
+  height: 110px;
+  font-size: 48px;        /* ⬆️ Larger text/icons */
   color: #000;
   background: #ffcc00;
-  border: 4px solid #000;
-  border-radius: 15px;
+  border: 6px solid #000;
+  border-radius: 25px;    /* Slightly rounder edges for large buttons */
   text-align: center;
-  line-height: 65px;
+  line-height: 100px;     /* Center text vertically */
   font-family: 'Press Start 2P', cursive;
   user-select: none;
-  box-shadow: 0 0 10px #ffcc00;
+  box-shadow: 0 0 15px #ffcc00;
   transition: transform 0.1s ease, box-shadow 0.2s;
   cursor: pointer;
 }
 
 .control-btn:active {
   transform: scale(0.9);
-  box-shadow: 0 0 20px #ffaa00;
+  box-shadow: 0 0 30px #ffaa00;
 }
 
 /* ✅ Show controller only on mobile screens */
@@ -333,6 +333,7 @@ canvas {
     display: flex !important;
   }
 }
+
 
 </style>
 </head>
