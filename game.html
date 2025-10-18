@@ -375,20 +375,20 @@ canvas {
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
   </div>
 </div>
+
 <div id="mobileControls">
   <div class="control-row">
-    <div class="control-btn up">▲</div>
+    <div class="control-btn up" data-dir="up">▲</div>
   </div>
   <div class="control-row">
-    <div class="control-btn left">◀</div>
+    <div class="control-btn left" data-dir="left">◀</div>
     <div class="control-btn center"></div> <!-- invisible center -->
-    <div class="control-btn right">▶</div>
+    <div class="control-btn right" data-dir="right">▶</div>
   </div>
   <div class="control-row">
-    <div class="control-btn down">▼</div>
+    <div class="control-btn down" data-dir="down">▼</div>
   </div>
 </div>
-
 
 <script>
 function getQueryParams() {
@@ -768,7 +768,6 @@ const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
 
 window.addEventListener("DOMContentLoaded", () => {
-  const mobileControls = document.getElementById("mobileControls");
   const buttons = document.querySelectorAll(".control-btn");
 
   buttons.forEach(btn => {
@@ -791,6 +790,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 </script>
 
 </body>
