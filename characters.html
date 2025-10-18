@@ -6,7 +6,7 @@
   <title>Select Character - Pinoy Game</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 * {
   box-sizing: border-box;
@@ -181,30 +181,43 @@ body::after {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: clamp(2rem, 3vw, 3rem);
   color: #ffcc00;
   cursor: pointer;
   text-shadow: 2px 2px #000, 0 0 5px #ffcc00;
-  transition: transform 0.2s, color 0.2s;
+  transition: transform 0.3s ease, color 0.3s ease, opacity 0.3s ease;
   user-select: none;
-  animation: arrowPulse 1s infinite alternate;
+  z-index: 5;
+  animation: arrowPulse 1.4s infinite alternate ease-in-out;
 }
 
-.arrow.left { left: 10px; }
-.arrow.right { right: 10px; }
+.arrow:hover,
+.arrow:active {
+  color: #fff;
+  transform: translateY(-50%) scale(1.25);
+}
+
+.arrow.left {
+  left: 2vw;
+}
+
+.arrow.right {
+  right: 2vw;
+}
 
 @keyframes arrowPulse {
-  from { transform: translateY(-50%) scale(1); }
-  to { transform: translateY(-50%) scale(1.2); }
+  from { opacity: 0.7; transform: translateY(-50%) scale(1); }
+  to { opacity: 1; transform: translateY(-50%) scale(1.15); }
 }
 
- .back-btn {
+/* === BACK BUTTON === */
+.back-btn {
   position: absolute;
   top: 30px;
   left: 40px;
   width: 65px;
   height: 65px;
-  z-index: 4;
+  z-index: 6;
   cursor: pointer;
   transition: all 0.2s ease;
   filter: drop-shadow(0 0 6px #000);
@@ -221,6 +234,7 @@ body::after {
   transform: scale(1.1);
   filter: drop-shadow(0 0 10px #ffcc00);
 }
+
 /* === ANIMATIONS === */
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.9); }
@@ -247,7 +261,7 @@ body::after {
   }
 
   .arrow {
-    font-size: 2rem;
+    font-size: clamp(2rem, 6vw, 2.8rem);
   }
 }
 
@@ -278,16 +292,22 @@ body::after {
     font-size: 0.7rem;
   }
 
+  /* Keep arrows visible and larger for touch */
   .arrow {
-    display: none; /* hide arrows on small screens */
+    font-size: clamp(2.2rem, 8vw, 3rem);
+    opacity: 0.9;
   }
+
+  .arrow.left { left: 4vw; }
+  .arrow.right { right: 4vw; }
 
   .back-btn {
     width: 40px;
     height: 40px;
   }
 }
-  </style>
+</style>
+
 </head>
 <body>
   <div class="char-wrapper">
@@ -364,5 +384,6 @@ body::after {
 
 </body>
 </html>
+
 
 
