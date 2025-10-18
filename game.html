@@ -284,56 +284,71 @@ canvas {
 
 canvas {
   position: relative;
-  z-index: 1; /* Keeps it below the mobile controls */
+  z-index: 1;
 }
 
-/* 🎮 MOBILE CONTROLS (HIDDEN ON PC) */
+/* 🎮 MOBILE CONTROLS (BOTTOM LEFT - FLOATING D-PAD STYLE) */
 #mobileControls {
   position: fixed;
-  bottom: 50px;         /* Slightly higher for better thumb reach */
-  right: 50px;          /* Far right placement */
-  display: none;        /* Hidden on PC by default */
+  bottom: 20px;
+  left: 20px;
+  display: none;
   flex-direction: column;
   align-items: center;
-  gap: 18px;            /* Increased spacing for large buttons */
-  z-index: 9999;        /* Always on top of the game canvas */
-  touch-action: none;   /* Prevents zoom or scroll on touch */
+  justify-content: center;
+  gap: 0;
+  z-index: 9999;
+  touch-action: none;
+  background: transparent; /* 👈 no background at all */
 }
 
-#mobileControls .mid {
+.control-row {
   display: flex;
-  gap: 18px;
+  justify-content: center;
+  gap: 0;
+  background: transparent; /* 👈 transparent rows too */
 }
 
+/* 🎮 SMALLER TRANSPARENT CIRCULAR BUTTONS */
 .control-btn {
-  width: 110px;           /* ⬆️ Bigger size */
-  height: 110px;
-  font-size: 48px;        /* ⬆️ Larger text/icons */
+  width: 40px;
+  height: 40px;
+  font-size: 25px;
   color: #000;
-  background: #ffcc00;
-  border: 6px solid #000;
-  border-radius: 25px;    /* Slightly rounder edges for large buttons */
+  background: rgba(255, 204, 0, 0.3); /* semi-transparent yellow */
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
   text-align: center;
-  line-height: 100px;     /* Center text vertically */
+  line-height: 35px;
   font-family: 'Press Start 2P', cursive;
   user-select: none;
-  box-shadow: 0 0 15px #ffcc00;
-  transition: transform 0.1s ease, box-shadow 0.2s;
+  box-shadow: 0 0 6px rgba(255, 204, 0, 0.4);
+  backdrop-filter: blur(3px); /* light glass blur */
+  transition: transform 0.1s ease, box-shadow 0.2s, background 0.2s;
   cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.control-btn.center {
+  visibility: hidden;
+  width: 20px;
+  height: 20px;
+  background: transparent;
 }
 
 .control-btn:active {
   transform: scale(0.9);
-  box-shadow: 0 0 30px #ffaa00;
+  background: rgba(255, 221, 51, 0.5); /* slightly brighter when pressed */
+  box-shadow: 0 0 12px rgba(255, 170, 0, 0.7);
 }
 
-/* ✅ Show controller only on mobile screens */
+/* ✅ Show only on mobile screens */
 @media screen and (max-width: 900px) {
   #mobileControls {
     display: flex !important;
   }
 }
-
 
 </style>
 </head>
@@ -360,16 +375,21 @@ canvas {
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
   </div>
 </div>
-
-<!-- 🎮 MOBILE CONTROLLER -->
 <div id="mobileControls">
-  <div class="control-btn up" data-dir="up">▲</div>
-  <div class="mid">
-    <div class="control-btn left" data-dir="left">◀</div>
-    <div class="control-btn right" data-dir="right">▶</div>
+  <div class="control-row">
+    <div class="control-btn up">▲</div>
   </div>
-  <div class="control-btn down" data-dir="down">▼</div>
+  <div class="control-row">
+    <div class="control-btn left">◀</div>
+    <div class="control-btn center"></div> <!-- invisible center -->
+    <div class="control-btn right">▶</div>
+  </div>
+  <div class="control-row">
+    <div class="control-btn down">▼</div>
+  </div>
 </div>
+
+
 <script>
 function getQueryParams() {
   const params = {};
