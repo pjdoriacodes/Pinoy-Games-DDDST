@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8" />
 <title>Mataya-Taya Game with Sprites - Improved AI</title>
 <link rel="icon" type="image/png" href="favicon.png">
@@ -280,35 +281,44 @@ canvas {
   from { background: rgba(0,0,0,0); }
   to { background: rgba(0,0,0,0.95); }
 }
- .joystick {
+
+/* Joystick container */
+  .joystick {
     position: fixed;
-    bottom: 80px;
+    bottom: 60px;
     right: 40px;
-    width: 120px;
-    height: 120px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
     background: radial-gradient(circle at center, #2a2a2a 60%, #000 100%);
     border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
     touch-action: none;
-    display: none; /* Hidden by default (for laptops) */
-    z-index: 999;
+    display: none; /* hidden on desktop by default */
+    z-index: 9999;
   }
 
-  /* Stick (movable inner circle) */
+  /* Show joystick on mobile */
+  @media (max-width: 1024px) {
+    .joystick {
+      display: block;
+    }
+  }
+
+  /* Movable stick */
   .stick {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 55px;
-    height: 55px;
+    width: 60px;
+    height: 60px;
     background: radial-gradient(circle at top, #666, #111);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: 0.05s linear;
   }
 
-  /* Direction indicator arrow */
+  /* Arrow indicator */
   .arrow {
     position: absolute;
     top: 10%;
@@ -319,13 +329,6 @@ canvas {
     border-right: 8px solid transparent;
     border-bottom: 14px solid rgba(255, 255, 255, 0.8);
     transform: translateX(-50%);
-  }
-
-  /* Visible only on mobile */
-  @media (max-width: 768px) {
-    .joystick {
-      display: block;
-    }
   }
 </style>
 </head>
@@ -352,6 +355,7 @@ canvas {
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
   </div>
 </div>
+
 
 <div class="joystick" id="joystick">
   <div class="stick" id="stick">
@@ -766,7 +770,7 @@ if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
     const y = distance * Math.sin(angle);
     stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
-    // Rotate arrow to indicate direction
+    // Rotate arrow to direction
     arrow.style.transform = `translateX(-50%) rotate(${angle}rad)`;
   }
 
