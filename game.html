@@ -282,50 +282,67 @@ canvas {
 }
 /* --- MOBILE CONTROLLER --- */
 #mobileControls {
-  position: absolute;
-  bottom: 40px;
-  left: 30px;
-  width: 160px;
-  height: 160px;
+  position: fixed;
+  bottom: 50px;
+  left: 40px;
+  width: 200px; /* bigger size */
+  height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
-  opacity: 0.9;
+  opacity: 0.95;
   user-select: none;
+  touch-action: none;
 }
 
 .ctrl-btn {
-  width: 50px;
-  height: 50px;
+  width: 70px;  /* bigger buttons */
+  height: 70px;
   background: rgba(255, 204, 0, 0.2);
-  border: 2px solid #ffcc00;
-  border-radius: 8px;
-  margin: 5px;
+  border: 3px solid #ffcc00;
+  border-radius: 12px;
+  margin: 7px;
   color: #ffcc00;
   font-family: 'Press Start 2P', cursive;
-  font-size: 12px;
+  font-size: 20px;  /* larger arrow symbols */
   display: flex;
   justify-content: center;
   align-items: center;
   touch-action: none;
-  box-shadow: 0 0 10px #ffcc00;
+  box-shadow: 0 0 15px #ffcc00;
+  transition: 0.2s ease;
 }
 .ctrl-btn:active {
   background: rgba(255, 204, 0, 0.6);
   transform: scale(0.95);
 }
 
-/* right-side button group */
+/* Right-side button group */
 #actionButtons {
-  position: absolute;
-  bottom: 60px;
-  right: 40px;
+  position: fixed;
+  bottom: 70px;
+  right: 50px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   z-index: 999;
 }
+
+/* 🖥️ Hide controllers on desktop/laptop */
+@media (min-width: 769px) {
+  #mobileControls, #actionButtons {
+    display: none;
+  }
+}
+
+/* 📱 Show on mobile only */
+@media (max-width: 768px) {
+  #mobileControls, #actionButtons {
+    display: flex;
+  }
+}
+
 </style>
 </head>
 <body>
