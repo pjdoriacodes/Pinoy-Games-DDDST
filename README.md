@@ -1,31 +1,39 @@
-🎮 Mataya-Taya
+🕹️ Mataya-Taya
 
-Mataya-Taya is a Filipino-inspired retro tag game where players must outsmart and outrun an AI-controlled tagger. The game blends classic playground excitement with digital gameplay, testing players’ speed, strategy, and reflexes.
+A fun and interactive tag game featuring character and map selection, AI taggers, and smooth controls.
+Stay untagged for as long as possible — and have fun!
 
-Developed with HTML, CSS, and JavaScript, the game leverages Web APIs such as Canvas for smooth sprite animations and a retro-style visual experience.
+✨ Features
 
- ✨ Features
+🧍 Character Selection — pick your favorite player before the match.
 
-🧍 Character selection
+🔄 Change Character Anytime — switch from the Settings menu.
 
-🔄 Can change character
+🗺️ Choose Map — select where you’ll play before starting.
 
- 🤖 AI Tagger
+🤖 AI Tagger — smart CPU players that can tag or be tagged.
 
- 🎮 Controls
-- Move Up: W  
-- Move Down: S  
-- Move Left: A  
-- Move Right: D  
+🎮 Controls
+Action	Key
+Move Up	W
+Move Down	S
+Move Left	A
+Move Right	D
 
-🎮 Welcome to Mataya-Taya!
+🚀 How to Play
 
-Step 1: Start the game and choose your map.
-Step 2: Select your character on the character selection screen.
-Step 3: Click “Play” to begin the match.
-Step 4: Watch for the ▾ indicator — it shows who is currently “TAYA” (the tagger).
-Step 5: Avoid being tagged! If you get tagged, you’ll see a red indicator appear on your character.
-Step 6: The game ends when all players are tagged.
-Step 7: To change your character or map, open Settings, make your selection, and start again.
+Start the game and choose your map.
 
-💡 Tip: Stay untagged as long as you can — and have fun!
+Select your character on the character selection screen.
+
+Click “Play” to begin the match.
+
+Watch for the ▾ indicator — it shows who is currently “TAYA” (the tagger).
+
+Avoid being tagged! If tagged, a red indicator appears on your character.
+
+The game ends when all players are tagged.
+
+To change your character or map, open Settings, make your selection, and start again.
+
+💡 Tip: Stay untagged as long as possible and enjoy the chase!
