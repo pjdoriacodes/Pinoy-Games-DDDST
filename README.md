@@ -18,14 +18,14 @@ Developed with HTML, CSS, and JavaScript, the game leverages Web APIs such as Ca
 - Move Left: A  
 - Move Right: D  
 
- 🕹️ How to Play
+🎮 Welcome to Mataya-Taya!
 
-1. Choose your character on the selection screen.  
-2. Click Play to start the game.  
-3. Watch for the ▾ — it shows who is currently "TAYA".  
-4. Avoid being tagged. If tagged, you get marked with the red indicator.  
-5. The game ends when all players are tagged.  
-6. To change your character, click Settings and select a new one, then play again.  
+Step 1: Start the game and choose your map.
+Step 2: Select your character on the character selection screen.
+Step 3: Click “Play” to begin the match.
+Step 4: Watch for the ▾ indicator — it shows who is currently “TAYA” (the tagger).
+Step 5: Avoid being tagged! If you get tagged, you’ll see a red indicator appear on your character.
+Step 6: The game ends when all players are tagged.
+Step 7: To change your character or map, open Settings, make your selection, and start again.
 
-💡 Tip
-Stay untagged as long as possible and have fun!
+💡 Tip: Stay untagged as long as you can — and have fun!
