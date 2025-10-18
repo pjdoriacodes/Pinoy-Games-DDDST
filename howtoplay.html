@@ -8,38 +8,43 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+  * {
+    box-sizing: border-box;
+  }
+
   body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: url("bg.png") center center / cover no-repeat #0f0f1c;
-  font-family: 'Press Start 2P', cursive;
-  overflow: hidden;
-}
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url("bg.png") center center / cover no-repeat #0f0f1c;
+    font-family: 'Press Start 2P', cursive;
+    overflow: auto;
+  }
 
-/* Wrapper (same layout but scaled for fullscreen) */
-.howto-wrapper {
-  width: 60%;
-  max-width: 58em;
-  aspect-ratio: 58 / 34; /* keeps the same proportion */
-  background: rgba(16, 16, 32, 0.85);
-  border: 4px solid #ffcc00;
-  box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300;
-  padding: 20px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  image-rendering: pixelated;
-  animation: flicker 2s infinite alternate, neonGlowOuter 3s infinite alternate;
-}
+  /* === MAIN WRAPPER === */
+  .howto-wrapper {
+    width: 92%;
+    max-width: 58em;
+    background: rgba(16, 16, 32, 0.88);
+    border: 4px solid #ffcc00;
+    box-shadow: 0 0 8px #ffcc00, 0 0 15px #ff6600, 0 0 25px #ff3300;
+    padding: clamp(15px, 3vw, 30px);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    animation: flicker 2s infinite alternate, neonGlowOuter 3s infinite alternate;
+    border-radius: 10px;
+    margin: 40px 0;
+  }
 
-  /* CRT / Scanline overlay */
+  /* === SCANLINE OVERLAY === */
   .howto-wrapper::after {
     content: "";
     position: absolute;
@@ -56,43 +61,42 @@
     animation: scan 5s linear infinite;
   }
 
-  @keyframes neonGlowOuter {
-    0%,100% { box-shadow: 0 0 5px #ffcc00, 0 0 10px #ff6600, 0 0 15px #ff3300; }
-    50% { box-shadow: 0 0 8px #ffcc00, 0 0 15px #ff6600, 0 0 20px #ff3300; }
-  }
-
+  /* === TITLE === */
   .title {
-    font-size: 28px;
+    font-size: clamp(16px, 2.5vw, 30px);
     color: #ffcc00;
     text-align: center;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px #000, 0 0 8px #ff6600;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px #000, 0 0 10px #ff6600;
     animation: glow 1.5s infinite alternate;
+    line-height: 1.6;
   }
 
+  /* === CONTENT === */
   .content {
-    flex: 1;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    gap: 20px;
-    overflow: hidden;
+    gap: clamp(15px, 3vw, 25px);
+    width: 100%;
+    flex-wrap: wrap;
   }
 
+  /* === INSTRUCTIONS === */
   .instructions {
     flex: 2;
     background: rgba(0,0,0,0.7);
     border: 3px solid #fff;
-    padding: 20px;
-    font-size: 12px;
-    line-height: 1.8;
+    padding: clamp(15px, 2vw, 25px);
+    font-size: clamp(9px, 1.4vw, 14px);
+    line-height: 1.9;
     overflow-y: auto;
     animation: fadeIn 2s ease-in-out;
-    box-shadow: inset 0 0 10px #ffcc00;
+    box-shadow: inset 0 0 12px #ffcc00;
     border-radius: 10px;
+    max-height: 60vh;
   }
 
-  /* Custom Scrollbar */
   .instructions::-webkit-scrollbar {
     width: 8px;
   }
@@ -101,36 +105,40 @@
     border-radius: 10px;
   }
 
+  /* === KEYBOARD BOX === */
   .keyboard {
     flex: 1;
     background: rgba(16,16,32,0.9);
     border: 3px solid #ffcc00;
     border-radius: 10px;
-    padding: 15px;
+    padding: clamp(10px, 2vw, 20px);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     animation: slideIn 2s ease-in-out;
     box-shadow: inset 0 0 8px #ffcc00;
+    text-align: center;
   }
 
   .key-row {
     display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
     margin: 5px 0;
   }
 
   .key {
-    width: 50px;
-    height: 50px;
+    width: clamp(35px, 6vw, 50px);
+    height: clamp(35px, 6vw, 50px);
     background: #111;
     border: 3px solid #ffcc00;
-    margin: 2px;
+    margin: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #ffcc00;
-    font-size: 18px;
+    font-size: clamp(10px, 2vw, 18px);
     text-shadow: 1px 1px #000;
     box-shadow: 0 0 5px #ffcc00, inset 0 0 2px #ffcc00;
     animation: pulse 2s infinite;
@@ -155,40 +163,37 @@
     display: inline-block;
     color: red;
     font-weight: bold;
-    font-size: 18px;
+    font-size: clamp(14px, 2vw, 18px);
     margin-right: 5px;
     animation: blink 1s infinite;
   }
 
-  @keyframes blink {
-    0%,50%,100% { opacity: 1; }
-    25%,75% { opacity: 0.2; }
+  /* === BACK BUTTON === */
+  .back-btn {
+    position: absolute;
+    top: clamp(10px, 3vw, 25px);
+    left: clamp(10px, 3vw, 25px);
+    width: clamp(45px, 6vw, 70px);
+    height: clamp(45px, 6vw, 70px);
+    z-index: 4;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    filter: drop-shadow(0 0 6px #000);
   }
 
-  .back-btn {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-  width: 65px;
-  height: 65px;
-  z-index: 4;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  filter: drop-shadow(0 0 6px #000);
-}
+  .back-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
 
-.back-btn img {
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
-  object-fit: contain;
-}
+  .back-btn:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px #ffcc00);
+  }
 
-.back-btn:hover {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 10px #ffcc00);
-}
-  /* Animations */
+  /* === ANIMATIONS === */
   @keyframes glow {
     from { text-shadow: 2px 2px #000, 0 0 8px #ff6600; }
     to { text-shadow: 2px 2px #000, 0 0 16px #ff0000; }
@@ -220,45 +225,73 @@
     100% { opacity: 1; }
   }
 
-  /* Responsive */
+  @keyframes blink {
+    0%,50%,100% { opacity: 1; }
+    25%,75% { opacity: 0.2; }
+  }
+
+  /* === RESPONSIVE === */
   @media (max-width: 900px) {
     .howto-wrapper {
-      width: 90%;
-      height: auto;
-      flex-direction: column;
       padding: 15px;
     }
-
     .content {
       flex-direction: column;
+      align-items: center;
     }
-
     .keyboard {
       margin-top: 20px;
+      width: 100%;
+    }
+    .instructions {
+      width: 100%;
+      max-height: 50vh;
     }
   }
 
+  @media (max-width: 600px) {
+    .title {
+      font-size: clamp(14px, 5vw, 22px);
+    }
+    .instructions {
+      font-size: clamp(8px, 3.5vw, 12px);
+      padding: 12px;
+      line-height: 1.6;
+    }
+    .key {
+      width: clamp(30px, 10vw, 45px);
+      height: clamp(30px, 10vw, 45px);
+      font-size: clamp(8px, 3.5vw, 14px);
+    }
+    .keyboard p {
+      font-size: clamp(8px, 3vw, 10px);
+    }
+    .back-btn {
+      top: 8px;
+      left: 10px;
+    }
+  }
 </style>
+
 </head>
 <body>
 <div class="howto-wrapper">
-
-  <!-- Back Button as Image -->
   <div class="back-btn" onclick="location.href='index.html'">
     <img src="back.png" alt="Back">
   </div>
 
   <div class="title">HOW THE GAME WORKS</div>
+
   <div class="content">
     <div class="instructions">
       <p>Welcome to <span style="color:#ffcc00;">Mataya-Taya</span>! 🕹️</p>
-      <p><strong>Step 1:</strong> Start the game and choose your map.</p>
-      <p><strong>Step 2:</strong> Choose your character on the selection screen.</p>
-      <p><strong>Step 3:</strong> Click "Play" to start the game.</p>
-      <p><strong>Step 4:</strong> Watch for the <span class="marker">▾</span> — it shows who is currently "TAYA".</p>
+      <p><strong>Step 1:</strong> Choose your <strong>map</strong> on the selection screen.</p>
+      <p><strong>Step 2:</strong> Choose your <strong>character</strong> after selecting the map.</p>
+      <p><strong>Step 3:</strong> Click <strong>"Play"</strong> to start the game.</p>
+      <p><strong>Step 4:</strong> Watch for the <span class="marker">▾</span> — it shows who is currently <strong>"TAYA"</strong>.</p>
       <p><strong>Step 5:</strong> Avoid being tagged. If tagged, you get marked with the red indicator.</p>
       <p><strong>Step 6:</strong> The game ends when all players are tagged.</p>
-      <p><strong>Step 7:</strong> To change your character, click <strong>Settings</strong> and select a new one, then play again.</p>
+      <p><strong>Step 7:</strong> To change your map or character, click <strong>Settings</strong> and select again, then play.</p>
       <p>Remember: Stay untagged as long as possible and have fun!</p>
     </div>
 
@@ -273,15 +306,12 @@
         <div class="key" id="keyS">S</div>
         <div class="key" id="keyD">D</div>
       </div>
-      <div class="key-row"></div>
-      <p style="margin-top:10px; font-size:10px; text-align:center;">Use these keys to move your character</p>
+      <p style="margin-top:10px; color:#ffcc00;">Use these keys to move your character</p>
     </div>
   </div>
-
 </div>
 
 <script>
-  // Key press demo animation
   const keys = ['W','A','S','D'];
   keys.forEach(key => {
     document.addEventListener('keydown', e => {
@@ -297,4 +327,4 @@
   });
 </script>
 </body>
-  </html>
+</html>
