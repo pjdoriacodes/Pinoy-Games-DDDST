@@ -280,52 +280,53 @@ canvas {
   from { background: rgba(0,0,0,0); }
   to { background: rgba(0,0,0,0.95); }
 }
-/* --- MOBILE CONTROLLER --- */
-#mobileControls {
-  position: absolute;
-  bottom: 40px;
-  left: 30px;
-  width: 160px;
-  height: 160px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  opacity: 0.9;
-  user-select: none;
-}
+ .joystick {
+    position: fixed;
+    bottom: 80px;
+    right: 40px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, #2a2a2a 60%, #000 100%);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    touch-action: none;
+    display: none; /* Hidden by default (for laptops) */
+    z-index: 999;
+  }
 
-.ctrl-btn {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 204, 0, 0.2);
-  border: 2px solid #ffcc00;
-  border-radius: 8px;
-  margin: 5px;
-  color: #ffcc00;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  touch-action: none;
-  box-shadow: 0 0 10px #ffcc00;
-}
-.ctrl-btn:active {
-  background: rgba(255, 204, 0, 0.6);
-  transform: scale(0.95);
-}
+  /* Stick (movable inner circle) */
+  .stick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 55px;
+    height: 55px;
+    background: radial-gradient(circle at top, #666, #111);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: 0.05s linear;
+  }
 
-/* right-side button group */
-#actionButtons {
-  position: absolute;
-  bottom: 60px;
-  right: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 999;
-}
+  /* Direction indicator arrow */
+  .arrow {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid rgba(255, 255, 255, 0.8);
+    transform: translateX(-50%);
+  }
+
+  /* Visible only on mobile */
+  @media (max-width: 768px) {
+    .joystick {
+      display: block;
+    }
+  }
 </style>
 </head>
 <body>
@@ -352,14 +353,9 @@ canvas {
   </div>
 </div>
 
-<div id="mobileControls">
-  <div style="display: flex; flex-direction: column; align-items: center;">
-    <button class="ctrl-btn" data-key="w">▲</button>
-    <div style="display: flex;">
-      <button class="ctrl-btn" data-key="a">◀</button>
-      <button class="ctrl-btn" data-key="s">▼</button>
-      <button class="ctrl-btn" data-key="d">▶</button>
-    </div>
+<div class="joystick" id="joystick">
+  <div class="stick" id="stick">
+    <div class="arrow" id="arrow"></div>
   </div>
 </div>
 <script>
@@ -739,18 +735,46 @@ if (quitBtn) quitBtn.addEventListener("click", () => {
 const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
 
-const controlButtons = document.querySelectorAll('.ctrl-btn[data-key]');
-controlButtons.forEach(btn => {
-  const key = btn.getAttribute('data-key');
-  btn.addEventListener('touchstart', e => {
+ const joystick = document.getElementById('joystick');
+  const stick = document.getElementById('stick');
+  const arrow = document.getElementById('arrow');
+
+  let active = false;
+  let center = { x: 0, y: 0 };
+
+  joystick.addEventListener('touchstart', start, false);
+  joystick.addEventListener('touchmove', move, false);
+  joystick.addEventListener('touchend', end, false);
+
+  function start(e) {
+    active = true;
+    const rect = joystick.getBoundingClientRect();
+    center.x = rect.left + rect.width / 2;
+    center.y = rect.top + rect.height / 2;
+  }
+
+  function move(e) {
+    if (!active) return;
     e.preventDefault();
-    keys[key] = true;
-  });
-  btn.addEventListener('touchend', e => {
-    e.preventDefault();
-    keys[key] = false;
-  });
-});
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - center.x;
+    const deltaY = touch.clientY - center.y;
+    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), 40);
+    const angle = Math.atan2(deltaY, deltaX);
+
+    const x = distance * Math.cos(angle);
+    const y = distance * Math.sin(angle);
+    stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+
+    // Rotate arrow to indicate direction
+    arrow.style.transform = `translateX(-50%) rotate(${angle}rad)`;
+  }
+
+  function end() {
+    active = false;
+    stick.style.transform = 'translate(-50%, -50%)';
+    arrow.style.transform = 'translateX(-50%) rotate(0deg)';
+  }
 </script>
 
 </body>
