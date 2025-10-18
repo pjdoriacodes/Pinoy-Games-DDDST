@@ -740,32 +740,28 @@ if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
   const stick = document.getElementById('stick');
   const arrow = document.getElementById('arrow');
 
-  let dragging = false;
-  let centerX, centerY;
+  let active = false;
+  let center = { x: 0, y: 0 };
 
-  // Get joystick center
   function updateCenter() {
     const rect = joystick.getBoundingClientRect();
-    centerX = rect.left + rect.width / 2;
-    centerY = rect.top + rect.height / 2;
+    center.x = rect.left + rect.width / 2;
+    center.y = rect.top + rect.height / 2;
   }
 
-  // Start drag
-  joystick.addEventListener('pointerdown', (e) => {
-    dragging = true;
+  joystick.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    active = true;
     updateCenter();
   });
 
-  // Move stick
-  window.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    e.preventDefault();
-
-    const dx = e.clientX - centerX;
-    const dy = e.clientY - centerY;
+  window.addEventListener('touchmove', (e) => {
+    if (!active) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - center.x;
+    const dy = touch.clientY - center.y;
     const distance = Math.min(Math.sqrt(dx * dx + dy * dy), 40);
     const angle = Math.atan2(dy, dx);
-
     const x = distance * Math.cos(angle);
     const y = distance * Math.sin(angle);
 
@@ -773,10 +769,8 @@ if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
     arrow.style.transform = `translateX(-50%) rotate(${angle}rad)`;
   });
 
-  // End drag
-  window.addEventListener('pointerup', () => {
-    if (!dragging) return;
-    dragging = false;
+  window.addEventListener('touchend', () => {
+    active = false;
     stick.style.transform = 'translate(-50%, -50%)';
     arrow.style.transform = 'translateX(-50%) rotate(0deg)';
   });
