@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mataya-Taya Game with Sprites - Improved AI</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -281,21 +282,27 @@ canvas {
   to { background: rgba(0,0,0,0.95); }
 }
 
+canvas {
+  position: relative;
+  z-index: 1; /* Keeps it below the mobile controls */
+}
+
 /* 🎮 MOBILE CONTROLS (HIDDEN ON PC) */
 #mobileControls {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: none; /* default hidden for PC */
+  bottom: 25px;
+  right: 25px;
+  display: none; /* Hidden on PC by default */
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  z-index: 50;
+  gap: 12px;
+  z-index: 9999; /* Always on top of the game canvas */
+  touch-action: none; /* Prevents double tap zoom or scrolling while pressing */
 }
 
 #mobileControls .mid {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .control-btn {
@@ -312,6 +319,7 @@ canvas {
   user-select: none;
   box-shadow: 0 0 10px #ffcc00;
   transition: transform 0.1s ease, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .control-btn:active {
@@ -319,12 +327,13 @@ canvas {
   box-shadow: 0 0 20px #ffaa00;
 }
 
-/* Show only on mobile screens */
-@media (max-width: 900px) {
+/* ✅ Show controller only on mobile screens */
+@media screen and (max-width: 900px) {
   #mobileControls {
-    display: flex;
+    display: flex !important;
   }
 }
+
 </style>
 </head>
 <body>
@@ -737,27 +746,28 @@ if (quitBtn) quitBtn.addEventListener("click", () => {
 const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
 
-// === MOBILE CONTROLS ===
-const mobileControls = document.getElementById("mobileControls");
-const buttons = document.querySelectorAll(".control-btn");
+window.addEventListener("DOMContentLoaded", () => {
+  const mobileControls = document.getElementById("mobileControls");
+  const buttons = document.querySelectorAll(".control-btn");
 
-buttons.forEach(btn => {
-  btn.addEventListener("touchstart", e => {
-    e.preventDefault();
-    const dir = btn.dataset.dir;
-    if (dir === "up") keys["w"] = true;
-    if (dir === "down") keys["s"] = true;
-    if (dir === "left") keys["a"] = true;
-    if (dir === "right") keys["d"] = true;
-  });
+  buttons.forEach(btn => {
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      const dir = btn.dataset.dir;
+      if (dir === "up") keys["w"] = true;
+      if (dir === "down") keys["s"] = true;
+      if (dir === "left") keys["a"] = true;
+      if (dir === "right") keys["d"] = true;
+    });
 
-  btn.addEventListener("touchend", e => {
-    e.preventDefault();
-    const dir = btn.dataset.dir;
-    if (dir === "up") keys["w"] = false;
-    if (dir === "down") keys["s"] = false;
-    if (dir === "left") keys["a"] = false;
-    if (dir === "right") keys["d"] = false;
+    btn.addEventListener("touchend", e => {
+      e.preventDefault();
+      const dir = btn.dataset.dir;
+      if (dir === "up") keys["w"] = false;
+      if (dir === "down") keys["s"] = false;
+      if (dir === "left") keys["a"] = false;
+      if (dir === "right") keys["d"] = false;
+    });
   });
 });
 </script>
