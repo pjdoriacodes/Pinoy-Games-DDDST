@@ -282,68 +282,49 @@ canvas {
   to { background: rgba(0,0,0,0.95); }
 }
 
-canvas {
-  position: relative;
-  z-index: 1;
-}
 
-/* 🎮 MOBILE CONTROLS (BOTTOM LEFT - FLOATING D-PAD STYLE) */
+/* 🎮 MOBILE CONTROLS (HIDDEN ON PC) */
 #mobileControls {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  display: none;
+  bottom: 25px;
+  left: 25px; /* bottom-left corner */
+  display: none; /* Hidden on PC by default */
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0;
-  z-index: 9999;
-  touch-action: none;
-  background: transparent; /* 👈 no background at all */
+  gap: 2px; /* very tight vertical spacing */
+  z-index: 9999; /* Always on top of the game canvas */
+  touch-action: none; /* Prevents double tap zoom or scrolling while pressing */
 }
 
-.control-row {
+#mobileControls .mid {
   display: flex;
-  justify-content: center;
-  gap: 0;
-  background: transparent; /* 👈 transparent rows too */
+  gap: 30px; /* more space between left and right buttons */
 }
 
-/* 🎮 SMALLER TRANSPARENT CIRCULAR BUTTONS */
 .control-btn {
-  width: 40px;
-  height: 40px;
+  width: 35px; /* button size */
+  height: 35px;
   font-size: 25px;
-  color: #000;
-  background: rgba(255, 204, 0, 0.3); /* semi-transparent yellow */
-  border: 2px solid rgba(0, 0, 0, 0.6);
-  border-radius: 50%;
+  color: #ffffff;
+  background: transparent; /* fully transparent */
+  border: 2px solid rgba(255, 204, 0, 0.8); /* visible border */
+  border-radius: 50%; /* circular */
   text-align: center;
-  line-height: 35px;
+  line-height: 25px; /* vertically center the text */
   font-family: 'Press Start 2P', cursive;
   user-select: none;
-  box-shadow: 0 0 6px rgba(255, 204, 0, 0.4);
-  backdrop-filter: blur(3px); /* light glass blur */
-  transition: transform 0.1s ease, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.6); /* glowing effect */
+  transition: transform 0.1s ease, box-shadow 0.2s;
   cursor: pointer;
-  margin: 0;
-  padding: 0;
-}
-
-.control-btn.center {
-  visibility: hidden;
-  width: 20px;
-  height: 20px;
-  background: transparent;
 }
 
 .control-btn:active {
   transform: scale(0.9);
-  background: rgba(255, 221, 51, 0.5); /* slightly brighter when pressed */
-  box-shadow: 0 0 12px rgba(255, 170, 0, 0.7);
+  box-shadow: 0 0 20px rgba(255, 170, 0, 0.8);
 }
 
-/* ✅ Show only on mobile screens */
+
+/* ✅ Show controller only on mobile screens */
 @media screen and (max-width: 900px) {
   #mobileControls {
     display: flex !important;
@@ -376,20 +357,15 @@ canvas {
   </div>
 </div>
 
+<!-- 🎮 MOBILE CONTROLLER -->
 <div id="mobileControls">
-  <div class="control-row">
-    <div class="control-btn up" data-dir="up">▲</div>
-  </div>
-  <div class="control-row">
+  <div class="control-btn up" data-dir="up">▲</div>
+  <div class="mid">
     <div class="control-btn left" data-dir="left">◀</div>
-    <div class="control-btn center"></div> <!-- invisible center -->
     <div class="control-btn right" data-dir="right">▶</div>
   </div>
-  <div class="control-row">
-    <div class="control-btn down" data-dir="down">▼</div>
-  </div>
+  <div class="control-btn down" data-dir="down">▼</div>
 </div>
-
 <script>
 function getQueryParams() {
   const params = {};
@@ -768,29 +744,31 @@ const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
 
 window.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".control-btn");
 
-  buttons.forEach(btn => {
-    btn.addEventListener("touchstart", e => {
-      e.preventDefault();
-      const dir = btn.dataset.dir;
-      if (dir === "up") keys["w"] = true;
-      if (dir === "down") keys["s"] = true;
-      if (dir === "left") keys["a"] = true;
-      if (dir === "right") keys["d"] = true;
-    });
+// === MOBILE CONTROLS ===
+const mobileControls = document.getElementById("mobileControls");
+const buttons = document.querySelectorAll(".control-btn");
 
-    btn.addEventListener("touchend", e => {
-      e.preventDefault();
-      const dir = btn.dataset.dir;
-      if (dir === "up") keys["w"] = false;
-      if (dir === "down") keys["s"] = false;
-      if (dir === "left") keys["a"] = false;
-      if (dir === "right") keys["d"] = false;
-    });
+buttons.forEach(btn => {
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    if (dir === "up") keys["w"] = true;
+    if (dir === "down") keys["s"] = true;
+    if (dir === "left") keys["a"] = true;
+    if (dir === "right") keys["d"] = true;
+  });
+
+  btn.addEventListener("touchend", e => {
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    if (dir === "up") keys["w"] = false;
+    if (dir === "down") keys["s"] = false;
+    if (dir === "left") keys["a"] = false;
+    if (dir === "right") keys["d"] = false;
   });
 });
-
+});
 </script>
 
 </body>
