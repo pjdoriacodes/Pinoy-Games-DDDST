@@ -363,16 +363,45 @@ canvas {
   position: absolute;
   width: 100px;
   height: 100px;
-  border: 4px solid #00bfff;
+  border: 4px solid #ffae00; /* changed to yellow-orange */
   border-radius: 50%;
   pointer-events: none;
   opacity: 0;
   z-index: 10;
   transform: scale(1);
+  box-shadow: 0 0 20px #ffcc00; /* added soft yellow-orange glow */
 }
+
 @media screen and (max-width: 900px) {
   #turboBtn { display: block; } /* show only on mobile */
 }
+@keyframes turboSplash {
+  0% { 
+    transform: scale(1); 
+    opacity: 1; 
+    box-shadow: 0 0 20px #ffae00; /* yellow-orange */
+  }
+  100% { 
+    transform: scale(2); 
+    opacity: 0; 
+    box-shadow: 0 0 50px #ffcc00; /* bright yellow-orange glow */
+  }
+}
+
+@keyframes lightSplash {
+  0% { 
+    transform: scale(0.5); 
+    opacity: 0.6; 
+    box-shadow: 0 0 15px #ffae00; /* yellow-orange */
+  }
+  100% { 
+    transform: scale(1.5); 
+    opacity: 0; 
+    box-shadow: 0 0 40px #ffcc00; /* brighter yellow-orange glow */
+  }
+}
+
+
 </style>
 </head>
 <body>
@@ -524,90 +553,90 @@ document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 let turboActive = false;
 let turboCooldown = false;
 
-// Use existing DOM elements if present (we include them in the HTML)
-const turboBtn = document.getElementById("turboBtn") || (() => {
-  const b = document.createElement("button");
-  b.id = "turboBtn";
-  b.textContent = "⚡";
-  document.body.appendChild(b);
-  return b;
-})();
+// Elements
+const turboBtn = document.getElementById("turboBtn");
 
-const splashEffect = document.getElementById("splashEffect") || (() => {
-  const d = document.createElement("div");
-  d.id = "splashEffect";
-  document.body.appendChild(d);
-  return d;
-})();
+// ⚡ Create lightning icon element (always visible above the human player)
+const lightningIcon = document.createElement("img");
+lightningIcon.src = "turbo.png"; // <-- use your lightning image filename
+lightningIcon.id = "lightningIcon";
+lightningIcon.style.position = "absolute";
+lightningIcon.style.width = "60px";
+lightningIcon.style.height = "40px";
+lightningIcon.style.pointerEvents = "none";
+lightningIcon.style.transition = "filter 0.3s ease, opacity 0.3s ease";
+lightningIcon.style.filter = "drop-shadow(0 0 20px #ffae00) drop-shadow(0 0 40px #ffcc00)";
+lightningIcon.style.opacity = "1";
+lightningIcon.style.zIndex = "50";
+document.body.appendChild(lightningIcon);
 
-// Helper: convert canvas game coords to page coords for splash centering
-function canvasToPagePos(gameX, gameY, splashW = 100, splashH = 100) {
+
+// === Update lightning icon position every frame ===
+function updateLightningPosition() {
+  if (!players[0]) return;
+  const player = players[0];
   const rect = canvas.getBoundingClientRect();
-  // canvas internal size may differ from CSS size; map using ratio
   const scaleX = rect.width / canvas.width;
   const scaleY = rect.height / canvas.height;
-  const pageX = rect.left + (gameX * scaleX);
-  const pageY = rect.top + (gameY * scaleY);
-  return { x: pageX - splashW / 2, y: pageY - splashH / 2 };
+
+  const headX = rect.left + (player.x + player.w / 2) * scaleX - 25;
+  const headY = rect.top + (player.y - 20) * scaleY; // closer to head
+  lightningIcon.style.left = headX + "px";
+  lightningIcon.style.top = headY + "px";
 }
 
-// Ensure turbo button shows only on mobile via CSS media query (already in <style>)
-// Activation logic
-function activateTurbo() {
-  if (turboCooldown || turboActive) return;
-  if (!players || players.length === 0) return; // safety: player not initialized yet
 
+// === Turbo Activation Logic ===
+function activateTurbo() {
+  if (turboCooldown || turboActive || !players.length) return;
   turboActive = true;
   turboCooldown = true;
 
-  const player = players[0]; // human player
+  const boostMultiplier = 3;
   const originalSpeed = playerSpeed;
-  const boostMultiplier = 3; // triple speed
-
-  // Apply boost
   playerSpeed *= boostMultiplier;
 
-  // Splash visual: center on player's center
-  const centerX = player.x + player.w / 2;
-  const centerY = player.y + player.h / 2;
-  const pos = canvasToPagePos(centerX, centerY, 100, 100);
-  splashEffect.style.left = pos.x + "px";
-  splashEffect.style.top = pos.y + "px";
-  splashEffect.style.opacity = 1;
-  splashEffect.style.transform = "scale(1)";
-  splashEffect.style.animation = "turboSplash 0.5s ease-out";
-  // ensure it fades out after animation
-  setTimeout(() => {
-    splashEffect.style.opacity = 0;
-    splashEffect.style.animation = "";
-  }, 500);
+  // ⚡ Glow bright when activated
+  lightningIcon.style.filter = "drop-shadow(0 0 20px #ffae00) drop-shadow(0 0 40px #ffcc00)";
+  lightningIcon.style.opacity = "1";
 
   // End turbo after 3 seconds
   setTimeout(() => {
     playerSpeed = originalSpeed;
     turboActive = false;
+
+    // dim icon during cooldown
+    lightningIcon.style.filter = "grayscale(1) brightness(0.4)";
   }, 3000);
 
-  // Cooldown 10 seconds
-  turboBtn.disabled = true;
+  // Cooldown 10 seconds, then light up again
   setTimeout(() => {
-    turboBtn.disabled = false;
     turboCooldown = false;
+    lightningIcon.style.filter = "drop-shadow(0 0 20px #ffcc00)";
+    lightningIcon.style.opacity = "1";
   }, 10000);
 }
 
-// PC control (Space) - only triggers when game started
+// === CONTROLS ===
+// Spacebar (PC)
 document.addEventListener("keydown", e => {
-  if (e.code === "Space") {
-    // prevent interfering with other inputs if not in game
-    if (gameStarted && !gameOver) activateTurbo();
+  if (e.code === "Space" && !turboCooldown && !turboActive && gameStarted && !gameOver) {
+    activateTurbo();
   }
 });
 
-// Mobile control (button) - we still check gameStarted
-turboBtn.addEventListener("click", () => {
-  if (gameStarted && !gameOver) activateTurbo();
-});
+// Mobile (⚡ button)
+if (turboBtn) {
+  turboBtn.addEventListener("click", () => {
+    if (!turboCooldown && !turboActive && gameStarted && !gameOver) {
+      activateTurbo();
+    }
+  });
+}
+
+// === Keep lightning following player ===
+setInterval(updateLightningPosition, 16); // ~60fps tracking
+
 
 function initGame() {
   players = [];
