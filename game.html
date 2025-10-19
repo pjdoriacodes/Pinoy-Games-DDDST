@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mataya-Taya Game</title>
+<title>Mataya-Taya Game with Sprites - Improved AI</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
@@ -330,7 +330,49 @@ canvas {
     display: flex !important;
   }
 }
+/* ⚡ Turbo Button (for mobile) */
+#turboBtn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffcc00 0%, #ff6600 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 0 20px #ffcc00;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 22px;
+  color: #000;
+  cursor: pointer;
+  z-index: 9999;
+  display: none;
+}
+#turboBtn:disabled {
+  background: gray;
+  box-shadow: none;
+  color: #333;
+}
 
+/* Splash effect */
+@keyframes turboSplash {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+#splashEffect {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 4px solid #00bfff;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10;
+  transform: scale(1);
+}
+@media screen and (max-width: 900px) {
+  #turboBtn { display: block; } /* show only on mobile */
+}
 </style>
 </head>
 <body>
@@ -356,6 +398,9 @@ canvas {
     <button id="restartBtn" class="retroBtn">PLAY AGAIN</button>
   </div>
 </div>
+
+<div id="splashEffect"></div>
+<button id="turboBtn">⚡</button>
 
 <!-- 🎮 MOBILE CONTROLLER -->
 <div id="mobileControls">
@@ -455,7 +500,8 @@ let players = [];
 const totalPlayers = 8;
 const playArea = { x: 0, y: 150, width: canvas.width, height: canvas.height - 150 };
 
-const playerSpeed = 1.5;
+// NOTE: changed to let so Turbo can modify it
+let playerSpeed = 1.5;
 const aiChaseSpeed = 1.5;
 const aiRunSpeed = 1.5;
 const aiWanderSpeed = 1.5;
@@ -473,6 +519,95 @@ let gameOver = false;
 const keys = {};
 document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+
+// === ⚡ TURBO (SPLASH) FEATURE ===
+let turboActive = false;
+let turboCooldown = false;
+
+// Use existing DOM elements if present (we include them in the HTML)
+const turboBtn = document.getElementById("turboBtn") || (() => {
+  const b = document.createElement("button");
+  b.id = "turboBtn";
+  b.textContent = "⚡";
+  document.body.appendChild(b);
+  return b;
+})();
+
+const splashEffect = document.getElementById("splashEffect") || (() => {
+  const d = document.createElement("div");
+  d.id = "splashEffect";
+  document.body.appendChild(d);
+  return d;
+})();
+
+// Helper: convert canvas game coords to page coords for splash centering
+function canvasToPagePos(gameX, gameY, splashW = 100, splashH = 100) {
+  const rect = canvas.getBoundingClientRect();
+  // canvas internal size may differ from CSS size; map using ratio
+  const scaleX = rect.width / canvas.width;
+  const scaleY = rect.height / canvas.height;
+  const pageX = rect.left + (gameX * scaleX);
+  const pageY = rect.top + (gameY * scaleY);
+  return { x: pageX - splashW / 2, y: pageY - splashH / 2 };
+}
+
+// Ensure turbo button shows only on mobile via CSS media query (already in <style>)
+// Activation logic
+function activateTurbo() {
+  if (turboCooldown || turboActive) return;
+  if (!players || players.length === 0) return; // safety: player not initialized yet
+
+  turboActive = true;
+  turboCooldown = true;
+
+  const player = players[0]; // human player
+  const originalSpeed = playerSpeed;
+  const boostMultiplier = 3; // triple speed
+
+  // Apply boost
+  playerSpeed *= boostMultiplier;
+
+  // Splash visual: center on player's center
+  const centerX = player.x + player.w / 2;
+  const centerY = player.y + player.h / 2;
+  const pos = canvasToPagePos(centerX, centerY, 100, 100);
+  splashEffect.style.left = pos.x + "px";
+  splashEffect.style.top = pos.y + "px";
+  splashEffect.style.opacity = 1;
+  splashEffect.style.transform = "scale(1)";
+  splashEffect.style.animation = "turboSplash 0.5s ease-out";
+  // ensure it fades out after animation
+  setTimeout(() => {
+    splashEffect.style.opacity = 0;
+    splashEffect.style.animation = "";
+  }, 500);
+
+  // End turbo after 3 seconds
+  setTimeout(() => {
+    playerSpeed = originalSpeed;
+    turboActive = false;
+  }, 3000);
+
+  // Cooldown 10 seconds
+  turboBtn.disabled = true;
+  setTimeout(() => {
+    turboBtn.disabled = false;
+    turboCooldown = false;
+  }, 10000);
+}
+
+// PC control (Space) - only triggers when game started
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") {
+    // prevent interfering with other inputs if not in game
+    if (gameStarted && !gameOver) activateTurbo();
+  }
+});
+
+// Mobile control (button) - we still check gameStarted
+turboBtn.addEventListener("click", () => {
+  if (gameStarted && !gameOver) activateTurbo();
+});
 
 function initGame() {
   players = [];
@@ -499,6 +634,7 @@ function initGame() {
   }
   players[Math.floor(Math.random() * players.length)].isTagger = true;
 
+  // reset control variables
   countdown = 3;
   gameStarted = false;
   gameOver = false;
@@ -524,21 +660,37 @@ function startCountdown() {
     countdown--;
   }, 1000);
 }
-initGame();
+initGame(); // initial setup
 
-// === MODAL ELEMENTS ===
+// === MODAL ELEMENTS & SAFE LISTENERS ===
 const gameOverModal = document.getElementById("gameOverModal");
 const playAgainBtn = document.getElementById("playAgainBtn");
 const quitGameBtn = document.getElementById("quitGameBtn");
 
 function resetGame() {
+  // hide modal
   if (gameOverModal) gameOverModal.style.visibility = "hidden";
+
+  // re-init everything without a full reload
   initGame();
-  if (imagesLoaded >= totalImages) loop();
+  // start loop if images already loaded
+  if (imagesLoaded >= totalImages) {
+    loop();
+  }
 }
 
-if (playAgainBtn) playAgainBtn.addEventListener("click", e => { e.preventDefault(); resetGame(); });
-if (quitGameBtn) quitGameBtn.addEventListener("click", e => { e.preventDefault(); window.location.href = "index.html"; });
+if (playAgainBtn) {
+  playAgainBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    resetGame();
+  });
+}
+if (quitGameBtn) {
+  quitGameBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = "index.html";
+  });
+}
 
 // helpers
 function clampToPlayArea(p) {
@@ -566,7 +718,7 @@ function animate(p, maxFrames, isMoving) {
   }
 }
 
-// === MAIN UPDATE ===
+// main update
 function update() {
   if (!gameStarted || gameOver) return;
 
@@ -635,18 +787,11 @@ function update() {
     ai.y += move.y;
     clampToPlayArea(ai);
 
-    // 🟢 FIXED: Direction-based animation for AI
-    if (Math.abs(move.x) > Math.abs(move.y)) {
-      ai.frameY = move.x > 0 ? 2 : 1; // right or left
-    } else if (Math.abs(move.y) > 0.1) {
-      ai.frameY = move.y > 0 ? 0 : 3; // down or up
-    }
-
     const isMoving = Math.abs(move.x) > 0.1 || Math.abs(move.y) > 0.1;
     animate(ai, npcColumns, isMoving);
   }
 
-  // tagging logic
+  // tagging: everyone can get tagged
   const touchRange = 40;
   for (const tagger of players.filter(p => p.isTagger)) {
     for (const runner of players.filter(p => !p.isTagger)) {
@@ -654,17 +799,22 @@ function update() {
       const dy = runner.y - tagger.y;
       const distance = Math.hypot(dx, dy);
       if (distance <= touchRange && tagger.flashTimer <= 0) {
+        // runner becomes tagger
         runner.isTagger = true;
         runner.flashTimer = 10;
       }
     }
   }
 
-  // game over check
+  // check game over (all tagged)
   if (players.every(p => p.isTagger)) {
     gameOver = true;
-    if (gameOverModal) gameOverModal.style.visibility = "visible";
-    else alert("Everyone is tagged! Game over!");
+    if (gameOverModal) {
+      gameOverModal.style.visibility = "visible";
+    } else {
+      // fallback
+      alert("Everyone is tagged! Game over!");
+    }
   }
 }
 
@@ -698,7 +848,7 @@ function draw() {
       p.x, p.y, p.w, p.h);
     ctx.globalAlpha = 1.0;
 
-    if (p.isTagger) drawArrowAbovePlayer(p);
+    if (p.isTagger) drawArrowAbovePlayer(p); // only arrow indicator
   }
 }
 
@@ -708,30 +858,53 @@ function loop() {
   if (!gameOver) requestAnimationFrame(loop);
 }
 
-// === MOBILE CONTROLS ===
+// settings modal / controls
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const changeCharacterBtn = document.getElementById("changeCharacterBtn");
+const quitBtn = document.getElementById("quitBtn");
+
+if (settingsBtn) settingsBtn.addEventListener("click", () => settingsModal.style.visibility = "visible");
+if (settingsModal) settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) settingsModal.style.visibility = "hidden"; });
+
+if (changeCharacterBtn) changeCharacterBtn.addEventListener("click", () => {
+  const currentMap = localStorage.getItem("selectedMap") || selectedMap;
+  window.location.href = "characters.html?map=" + encodeURIComponent(currentMap);
+});
+if (quitBtn) quitBtn.addEventListener("click", () => {
+  window.location.href = "index.html";
+});
+
+const restartBtn = document.getElementById("restartBtn");
+if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
+
 window.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".control-btn");
-  buttons.forEach(btn => {
-    btn.addEventListener("touchstart", e => {
-      e.preventDefault();
-      const dir = btn.dataset.dir;
-      if (dir === "up") keys["w"] = true;
-      if (dir === "down") keys["s"] = true;
-      if (dir === "left") keys["a"] = true;
-      if (dir === "right") keys["d"] = true;
-    });
-    btn.addEventListener("touchend", e => {
-      e.preventDefault();
-      const dir = btn.dataset.dir;
-      if (dir === "up") keys["w"] = false;
-      if (dir === "down") keys["s"] = false;
-      if (dir === "left") keys["a"] = false;
-      if (dir === "right") keys["d"] = false;
-    });
+
+// === MOBILE CONTROLS ===
+const mobileControls = document.getElementById("mobileControls");
+const buttons = document.querySelectorAll(".control-btn");
+
+buttons.forEach(btn => {
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    if (dir === "up") keys["w"] = true;
+    if (dir === "down") keys["s"] = true;
+    if (dir === "left") keys["a"] = true;
+    if (dir === "right") keys["d"] = true;
+  });
+
+  btn.addEventListener("touchend", e => {
+    e.preventDefault();
+    const dir = btn.dataset.dir;
+    if (dir === "up") keys["w"] = false;
+    if (dir === "down") keys["s"] = false;
+    if (dir === "left") keys["a"] = false;
+    if (dir === "right") keys["d"] = false;
   });
 });
+});
 </script>
-
 
 </body>
 </html>
