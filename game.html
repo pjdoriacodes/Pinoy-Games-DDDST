@@ -400,8 +400,14 @@ canvas {
     box-shadow: 0 0 40px #ffcc00; /* brighter yellow-orange glow */
   }
 }
-
-
+  /* Show only on mobile devices */
+  @media (max-width: 768px) {
+    #invisibleBtn {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 </style>
 </head>
 <body>
@@ -430,6 +436,29 @@ canvas {
 
 <div id="splashEffect"></div>
 <button id="turboBtn">⚡</button>
+
+<!-- Invisibility Button (mobile only) -->
+<button id="invisibleBtn" style="
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 3px solid #fff;
+  z-index: 99;
+  display: none; /* hidden by default */
+  padding: 0;
+  overflow: hidden;
+">
+  <img src="invisible.png" alt="Invisible Icon" style="
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* makes it white */
+  ">
+</button>
 
 <!-- 🎮 MOBILE CONTROLLER -->
 <div id="mobileControls">
@@ -550,6 +579,7 @@ document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
 // === ⚡ TURBO (SPLASH) FEATURE ===
+// === ⚡ TURBO FEATURE ===
 let turboActive = false;
 let turboCooldown = false;
 
@@ -570,23 +600,25 @@ lightningIcon.style.opacity = "1";
 lightningIcon.style.zIndex = "50";
 document.body.appendChild(lightningIcon);
 
+// === 🕶️ INVISIBILITY FEATURE ===
+let invisibleActive = false;
+let invisibleCooldown = false;
 
-// === Update lightning icon position every frame ===
-function updateLightningPosition() {
-  if (!players[0]) return;
-  const player = players[0];
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = rect.width / canvas.width;
-  const scaleY = rect.height / canvas.height;
+// 🕶️ Create invisibility icon element (like Turbo lightning)
+const invisibilityIcon = document.createElement("img");
+invisibilityIcon.src = "invisible.png"; // <-- use your invisibility icon image
+invisibilityIcon.id = "invisibilityIcon";
+invisibilityIcon.style.position = "absolute";
+invisibilityIcon.style.width = "55px";
+invisibilityIcon.style.height = "40px";
+invisibilityIcon.style.pointerEvents = "none";
+invisibilityIcon.style.transition = "filter 0.3s ease, opacity 0.3s ease";
+invisibilityIcon.style.filter = "drop-shadow(0 0 20px #00ffff)";
+invisibilityIcon.style.opacity = "1";
+invisibilityIcon.style.zIndex = "50";
+document.body.appendChild(invisibilityIcon);
 
-  const headX = rect.left + (player.x + player.w / 2) * scaleX - 25;
-  const headY = rect.top + (player.y - 20) * scaleY; // closer to head
-  lightningIcon.style.left = headX + "px";
-  lightningIcon.style.top = headY + "px";
-}
-
-
-// === Turbo Activation Logic ===
+// === ⚡ Turbo Activation Logic ===
 function activateTurbo() {
   if (turboCooldown || turboActive || !players.length) return;
   turboActive = true;
@@ -597,7 +629,7 @@ function activateTurbo() {
   playerSpeed *= boostMultiplier;
 
   // ⚡ Glow bright when activated
-  lightningIcon.style.filter = "drop-shadow(0 0 20px #ffae00) drop-shadow(0 0 40px #ffcc00)";
+  lightningIcon.style.filter = "drop-shadow(0 0 25px #ffae00) drop-shadow(0 0 40px #ffcc00)";
   lightningIcon.style.opacity = "1";
 
   // End turbo after 3 seconds
@@ -617,15 +649,67 @@ function activateTurbo() {
   }, 10000);
 }
 
+function activateInvisibility() {
+  if (invisibleCooldown || invisibleActive || !players.length) return;
+  invisibleActive = true;
+  invisibleCooldown = true;
+
+  const player = players[0];
+  player.isInvisible = true;
+
+  // Icon visual
+  invisibilityIcon.style.filter = "drop-shadow(0 0 25px #00ffff)";
+  invisibilityIcon.style.opacity = "1";
+
+  // Duration of invisibility (visual + gameplay)
+  setTimeout(() => {
+    player.isInvisible = false;
+    invisibleActive = false;
+    invisibilityIcon.style.filter = "grayscale(1) brightness(0.4)";
+  }, 4000); // 4 seconds invisible
+
+  // Cooldown 12 seconds
+  setTimeout(() => {
+    invisibleCooldown = false;
+    invisibilityIcon.style.filter = "drop-shadow(0 0 20px #00ffff)";
+    invisibilityIcon.style.opacity = "1";
+  }, 12000);
+}
+
+
+// === ⚡🕶️ Combined Skill Icon Tracker ===
+function updateSkillIconsPosition() {
+  if (!players[0]) return;
+  const player = players[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = rect.width / canvas.width;
+  const scaleY = rect.height / canvas.height;
+
+  // base head position
+  const headX = rect.left + (player.x + player.w / 2) * scaleX;
+  const headY = rect.top + (player.y - 25) * scaleY;
+
+  // ⚡ lightning (left)
+  lightningIcon.style.left = (headX - 45) + "px";
+  lightningIcon.style.top = headY + "px";
+
+  // 🕶️ invisibility (right)
+  invisibilityIcon.style.left = (headX + 5) + "px";
+  invisibilityIcon.style.top = headY + "px";
+}
+
+// Update every frame (~60fps)
+setInterval(updateSkillIconsPosition, 16);
+
 // === CONTROLS ===
-// Spacebar (PC)
+// ⚡ Spacebar (Turbo)
 document.addEventListener("keydown", e => {
   if (e.code === "Space" && !turboCooldown && !turboActive && gameStarted && !gameOver) {
     activateTurbo();
   }
 });
 
-// Mobile (⚡ button)
+// ⚡ Mobile (Turbo Button)
 if (turboBtn) {
   turboBtn.addEventListener("click", () => {
     if (!turboCooldown && !turboActive && gameStarted && !gameOver) {
@@ -634,8 +718,23 @@ if (turboBtn) {
   });
 }
 
-// === Keep lightning following player ===
-setInterval(updateLightningPosition, 16); // ~60fps tracking
+// 🕶️ "E" Key (Invisibility)
+document.addEventListener("keydown", e => {
+  if (e.key.toLowerCase() === "e" && !invisibleCooldown && !invisibleActive && gameStarted && !gameOver) {
+    activateInvisibility();
+  }
+});
+
+// 🕶️ Mobile Button
+const invisibleBtn = document.getElementById("invisibleBtn");
+if (invisibleBtn) {
+  invisibleBtn.addEventListener("click", () => {
+    if (!invisibleCooldown && !invisibleActive && gameStarted && !gameOver) {
+      activateInvisibility();
+    }
+  });
+}
+
 
 
 function initGame() {
@@ -646,20 +745,22 @@ function initGame() {
     const sprite = (i === 0) ? playerSprite : shuffledAI[i - 1];
     const charSize = 70;
 
-    players.push({
-      x: Math.random() * (playArea.width - charSize),
-      y: playArea.y + Math.random() * (playArea.height - charSize),
-      w: charSize, h: charSize,
-      isHuman: i === 0,
-      sprite,
-      frameX: 0, frameY: 0, frameCounter: 0,
-      vx: 0, vy: 0,
-      lastDir: 0,
-      wanderTimer: 0,
-      wanderDir: { x: 0, y: 0 },
-      isTagger: false,
-      flashTimer: 0
-    });
+  players.push({
+  x: Math.random() * (playArea.width - charSize),
+  y: playArea.y + Math.random() * (playArea.height - charSize),
+  w: charSize, h: charSize,
+  isHuman: i === 0,
+  sprite,
+  frameX: 0, frameY: 0, frameCounter: 0,
+  vx: 0, vy: 0,
+  lastDir: 0,
+  wanderTimer: 0,
+  wanderDir: { x: 0, y: 0 },
+  isTagger: false,
+  flashTimer: 0,
+  isInvisible: false // ← initialize here
+});
+
   }
   players[Math.floor(Math.random() * players.length)].isTagger = true;
 
@@ -746,8 +847,6 @@ function animate(p, maxFrames, isMoving) {
     p.frameCounter = 0;
   }
 }
-
-// main update
 function update() {
   if (!gameStarted || gameOver) return;
 
@@ -842,19 +941,22 @@ function update() {
     animate(ai, npcColumns, isMoving);
   }
 
-  // === TAGGING ===
-  const touchRange = 40;
-  for (const tagger of players.filter(p => p.isTagger)) {
-    for (const runner of players.filter(p => !p.isTagger)) {
-      const dx = runner.x - tagger.x;
-      const dy = runner.y - tagger.y;
-      const distance = Math.hypot(dx, dy);
-      if (distance <= touchRange && tagger.flashTimer <= 0) {
-        runner.isTagger = true;
-        runner.flashTimer = 10;
-      }
+// === TAGGING ===
+const touchRange = 40;
+for (const tagger of players.filter(p => p.isTagger)) {
+  for (const runner of players.filter(p => !p.isTagger)) {
+    if (runner.isInvisible) continue; // cannot tag invisible players
+    const dx = runner.x - tagger.x;
+    const dy = runner.y - tagger.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance <= touchRange && tagger.flashTimer <= 0) {
+      runner.isTagger = true;
+      runner.flashTimer = 10;
     }
   }
+}
+
+
 
   // === GAME OVER ===
   if (players.every(p => p.isTagger)) {
@@ -866,6 +968,8 @@ function update() {
     }
   }
 }
+
+
 
 function drawArrowAbovePlayer(p) {
   const arrowY = p.y - 10;
@@ -887,19 +991,38 @@ function draw() {
     const frameW = img.frameW || (img.width / 4);
     const frameH = img.frameH || (img.height / 4);
 
+    // If player has flashTimer effect
     if (p.flashTimer > 0) {
       ctx.globalAlpha = 0.6;
       p.flashTimer--;
-    } else ctx.globalAlpha = 1.0;
+    } else {
+      ctx.globalAlpha = 1.0;
+    }
+
+    // If this is the human player and currently invisible, apply canvas filter + alpha
+    let prevFilter = ctx.filter || "none";
+    let prevAlpha = ctx.globalAlpha;
+    if (p.isHuman && p.isInvisible) {
+      ctx.filter = "grayscale(100%)";
+      ctx.globalAlpha = 0.35; // semi-transparent
+    }
 
     ctx.drawImage(img,
       p.frameX * frameW, p.frameY * frameH, frameW, frameH,
       p.x, p.y, p.w, p.h);
-    ctx.globalAlpha = 1.0;
 
-    if (p.isTagger) drawArrowAbovePlayer(p); // only arrow indicator
+    // restore filter & alpha
+    ctx.filter = prevFilter;
+    ctx.globalAlpha = prevAlpha;
+
+    // draw arrow for taggers
+    if (p.isTagger) drawArrowAbovePlayer(p);
   }
+
+  // ensure globalAlpha reset
+  ctx.globalAlpha = 1.0;
 }
+
 
 function loop() {
   update();
