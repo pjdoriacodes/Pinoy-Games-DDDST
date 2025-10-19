@@ -8,9 +8,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     margin: 0;
@@ -39,26 +37,9 @@
     justify-content: flex-start;
     align-items: center;
     position: relative;
-    animation: flicker 2s infinite alternate, neonGlowOuter 3s infinite alternate;
     border-radius: 10px;
     margin: 40px 0;
-  }
-
-  /* === SCANLINE OVERLAY === */
-  .howto-wrapper::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.15),
-      rgba(0,0,0,0.15) 2px,
-      transparent 2px,
-      transparent 4px
-    );
-    pointer-events: none;
-    animation: scan 5s linear infinite;
+    animation: flicker 2s infinite alternate, neonGlowOuter 3s infinite alternate;
   }
 
   /* === TITLE === */
@@ -66,10 +47,9 @@
     font-size: clamp(16px, 2.5vw, 30px);
     color: #ffcc00;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-shadow: 2px 2px #000, 0 0 10px #ff6600;
     animation: glow 1.5s infinite alternate;
-    line-height: 1.6;
   }
 
   /* === CONTENT === */
@@ -77,6 +57,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: stretch;
     gap: clamp(15px, 3vw, 25px);
     width: 100%;
     flex-wrap: wrap;
@@ -91,18 +72,9 @@
     font-size: clamp(9px, 1.4vw, 14px);
     line-height: 1.9;
     overflow-y: auto;
-    animation: fadeIn 2s ease-in-out;
     box-shadow: inset 0 0 12px #ffcc00;
     border-radius: 10px;
     max-height: 60vh;
-  }
-
-  .instructions::-webkit-scrollbar {
-    width: 8px;
-  }
-  .instructions::-webkit-scrollbar-thumb {
-    background: #ffcc00;
-    border-radius: 10px;
   }
 
   /* === KEYBOARD BOX === */
@@ -114,9 +86,8 @@
     padding: clamp(10px, 2vw, 20px);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    animation: slideIn 2s ease-in-out;
     box-shadow: inset 0 0 8px #ffcc00;
     text-align: center;
   }
@@ -141,15 +112,8 @@
     font-size: clamp(10px, 2vw, 18px);
     text-shadow: 1px 1px #000;
     box-shadow: 0 0 5px #ffcc00, inset 0 0 2px #ffcc00;
-    animation: pulse 2s infinite;
-    user-select: none;
-    transition: transform 0.1s, box-shadow 0.1s;
     border-radius: 8px;
-  }
-
-  .key:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 12px #ffcc00;
+    transition: transform 0.1s, box-shadow 0.1s;
   }
 
   .key.active {
@@ -159,26 +123,16 @@
     box-shadow: 0 0 8px #ffcc00, inset 0 0 6px #000;
   }
 
-  .marker {
-    display: inline-block;
-    color: red;
-    font-weight: bold;
-    font-size: clamp(14px, 2vw, 18px);
-    margin-right: 5px;
-    animation: blink 1s infinite;
-  }
-
-  /* === BACK BUTTON === */
   .back-btn {
     position: absolute;
-    top: clamp(10px, 3vw, 25px);
-    left: clamp(10px, 3vw, 25px);
+    top: 20px;
+    left: 20px;
     width: clamp(45px, 6vw, 70px);
     height: clamp(45px, 6vw, 70px);
-    z-index: 4;
     cursor: pointer;
     transition: all 0.2s ease;
     filter: drop-shadow(0 0 6px #000);
+    z-index: 5;
   }
 
   .back-btn img {
@@ -199,48 +153,18 @@
     to { text-shadow: 2px 2px #000, 0 0 16px #ff0000; }
   }
 
-  @keyframes pulse {
-    0%, 100% { border-color: #ffcc00; }
-    50% { border-color: #ff6600; }
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes slideIn {
-    from { transform: translateX(50px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes scan {
-    from { transform: translateY(0); }
-    to { transform: translateY(4px); }
-  }
-
   @keyframes flicker {
-    0% { opacity: 1; }
+    0%, 100% { opacity: 1; }
     50% { opacity: 0.98; }
-    100% { opacity: 1; }
-  }
-
-  @keyframes blink {
-    0%,50%,100% { opacity: 1; }
-    25%,75% { opacity: 0.2; }
   }
 
   /* === RESPONSIVE === */
   @media (max-width: 900px) {
-    .howto-wrapper {
-      padding: 15px;
-    }
     .content {
       flex-direction: column;
       align-items: center;
     }
     .keyboard {
-      margin-top: 20px;
       width: 100%;
     }
     .instructions {
@@ -250,30 +174,71 @@
   }
 
   @media (max-width: 600px) {
-    .title {
-      font-size: clamp(14px, 5vw, 22px);
+    .title { font-size: clamp(14px, 5vw, 22px); }
+    .key { width: 40px; height: 40px; font-size: 12px; }
+  }
+ .controls-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: start;
+    justify-items: center;
+    width: 100%;
+  }
+
+  .keyboard-box, .mobile-box {
+    background: rgba(16,16,32,0.9);
+    border: 3px solid #ffcc00;
+    box-shadow: 0 0 10px #ffcc00, inset 0 0 10px #ffcc00;
+    border-radius: 10px;
+    padding: clamp(10px, 2vw, 20px);
+    text-align: center;
+    color: #fff;
+    font-size: clamp(9px, 1.3vw, 14px);
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .keyboard-box h3, .mobile-box h3 {
+    color: #ffcc00;
+    text-shadow: 1px 1px #000, 0 0 8px #ff6600;
+    font-size: clamp(10px, 1.5vw, 16px);
+    margin-bottom: 15px;
+  }
+
+  .key-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 5px 0;
+  }
+
+  .key {
+    width: clamp(30px, 5vw, 45px);
+    height: clamp(30px, 5vw, 45px);
+    background: #000;
+    border: 3px solid #ffcc00;
+    border-radius: 5px;
+    color: #ffcc00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(10px, 1.5vw, 16px);
+    box-shadow: inset 0 0 4px #ffcc00, 0 0 6px #ffcc00;
+  }
+
+  @media (max-width: 800px) {
+    .controls-container {
+      grid-template-columns: 1fr;
     }
-    .instructions {
-      font-size: clamp(8px, 3.5vw, 12px);
-      padding: 12px;
-      line-height: 1.6;
-    }
-    .key {
-      width: clamp(30px, 10vw, 45px);
-      height: clamp(30px, 10vw, 45px);
-      font-size: clamp(8px, 3.5vw, 14px);
-    }
-    .keyboard p {
-      font-size: clamp(8px, 3vw, 10px);
-    }
-    .back-btn {
-      top: 8px;
-      left: 10px;
+
+    .keyboard-box, .mobile-box {
+      max-width: 320px;
     }
   }
 </style>
-
 </head>
+
 <body>
 <div class="howto-wrapper">
   <div class="back-btn" onclick="location.href='index.html'">
@@ -283,19 +248,24 @@
   <div class="title">HOW THE GAME WORKS</div>
 
   <div class="content">
-    <div class="instructions">
-      <p>Welcome to <span style="color:#ffcc00;">Mataya-Taya</span>! 🕹️</p>
-      <p><strong>Step 1:</strong> Choose your <strong>map</strong> on the selection screen.</p>
-      <p><strong>Step 2:</strong> Choose your <strong>character</strong> after selecting the map.</p>
-      <p><strong>Step 3:</strong> Click <strong>"Play"</strong> to start the game.</p>
-      <p><strong>Step 4:</strong> Watch for the <span class="marker">▾</span> — it shows who is currently <strong>"TAYA"</strong>.</p>
-      <p><strong>Step 5:</strong> Avoid being tagged. If tagged, you get marked with the red indicator.</p>
-      <p><strong>Step 6:</strong> The game ends when all players are tagged.</p>
-      <p><strong>Step 7:</strong> To change your map or character, click <strong>Settings</strong> and select again, then play.</p>
-      <p>Remember: Stay untagged as long as possible and have fun!</p>
-    </div>
+  <!-- LEFT: Instructions -->
+  <div class="instructions">
+    <p>Welcome to <span style="color:#ffcc00;">Mataya-Taya</span>! 🕹️</p>
+    <p><strong>Step 1:</strong> Start the game and choose your <strong>map</strong> from the selection screen.</p>
+    <p><strong>Step 2:</strong> Choose your <strong>character</strong> after selecting the map.</p>
+    <p><strong>Step 3:</strong> Click <strong>"Play"</strong> to start the game.</p>
+    <p><strong>Step 4:</strong> Watch for the red marker — it shows who is currently <strong>"TAYA"</strong>.</p>
+    <p><strong>Step 5:</strong> Avoid being tagged. If tagged, you get marked with the red indicator.</p>
+    <p><strong>Step 6:</strong> The game ends when all players are tagged.</p>
+    <p><strong>Step 7:</strong> To change your character, click <strong>Settings</strong> and select again, then play.</p>
+    <p>Remember: Stay untagged as long as possible and have fun!</p>
+  </div>
 
-    <div class="keyboard">
+  <!-- RIGHT: Controls Section -->
+  <div class="controls-container">
+    <!-- Keyboard Controls -->
+    <div class="keyboard-box">
+      <h3>Keyboard Controls</h3>
       <div class="key-row">
         <div class="key"></div>
         <div class="key" id="keyW">W</div>
@@ -306,25 +276,43 @@
         <div class="key" id="keyS">S</div>
         <div class="key" id="keyD">D</div>
       </div>
-      <p style="margin-top:10px; color:#ffcc00;">Use these keys to move your character</p>
+      <p>Use these keys to move your character</p>
+      <div class="key-row" style="margin-top:15px;">
+        <div class="key" id="keySPACE">⎵</div>
+        <div class="key" id="keyE">E</div>
+      </div>
+     <p>
+  <strong>Space</strong> = Turbo <br>
+  <br>
+  <strong>E</strong> = Invisible
+</p>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div class="mobile-box">
+      <h3>Mobile Controls</h3>
+      <p>Use the on-screen <strong>arrows</strong> to move.</p>
+      <p>Tap the <strong>Turbo Button</strong> for speed boost.</p>
+      <p>Tap the <strong>Invisible Button</strong> to hide.</p>
     </div>
   </div>
 </div>
-
 <script>
-  const keys = ['W','A','S','D'];
-  keys.forEach(key => {
-    document.addEventListener('keydown', e => {
-      if (e.key.toUpperCase() === key) {
-        document.getElementById('key'+key).classList.add('active');
-      }
-    });
-    document.addEventListener('keyup', e => {
-      if (e.key.toUpperCase() === key) {
-        document.getElementById('key'+key).classList.remove('active');
-      }
-    });
-  });
+const keys = ['W','A','S','D','SPACE','E'];
+
+document.addEventListener('keydown', e => {
+  const key = e.key.toUpperCase();
+  if (key === ' ') document.getElementById('keySPACE').classList.add('active');
+  else if (key === 'E') document.getElementById('keyE').classList.add('active');
+  else if (keys.includes(key)) document.getElementById('key'+key).classList.add('active');
+});
+
+document.addEventListener('keyup', e => {
+  const key = e.key.toUpperCase();
+  if (key === ' ') document.getElementById('keySPACE').classList.remove('active');
+  else if (key === 'E') document.getElementById('keyE').classList.remove('active');
+  else if (keys.includes(key)) document.getElementById('key'+key).classList.remove('active');
+});
 </script>
 </body>
 </html>
