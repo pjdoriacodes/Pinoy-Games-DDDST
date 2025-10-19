@@ -499,7 +499,6 @@ function initGame() {
   }
   players[Math.floor(Math.random() * players.length)].isTagger = true;
 
-  // reset control variables
   countdown = 3;
   gameStarted = false;
   gameOver = false;
@@ -525,37 +524,21 @@ function startCountdown() {
     countdown--;
   }, 1000);
 }
-initGame(); // initial setup
+initGame();
 
-// === MODAL ELEMENTS & SAFE LISTENERS ===
+// === MODAL ELEMENTS ===
 const gameOverModal = document.getElementById("gameOverModal");
 const playAgainBtn = document.getElementById("playAgainBtn");
 const quitGameBtn = document.getElementById("quitGameBtn");
 
 function resetGame() {
-  // hide modal
   if (gameOverModal) gameOverModal.style.visibility = "hidden";
-
-  // re-init everything without a full reload
   initGame();
-  // start loop if images already loaded
-  if (imagesLoaded >= totalImages) {
-    loop();
-  }
+  if (imagesLoaded >= totalImages) loop();
 }
 
-if (playAgainBtn) {
-  playAgainBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    resetGame();
-  });
-}
-if (quitGameBtn) {
-  quitGameBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.location.href = "index.html";
-  });
-}
+if (playAgainBtn) playAgainBtn.addEventListener("click", e => { e.preventDefault(); resetGame(); });
+if (quitGameBtn) quitGameBtn.addEventListener("click", e => { e.preventDefault(); window.location.href = "index.html"; });
 
 // helpers
 function clampToPlayArea(p) {
@@ -583,7 +566,7 @@ function animate(p, maxFrames, isMoving) {
   }
 }
 
-// main update
+// === MAIN UPDATE ===
 function update() {
   if (!gameStarted || gameOver) return;
 
@@ -652,11 +635,18 @@ function update() {
     ai.y += move.y;
     clampToPlayArea(ai);
 
+    // 🟢 FIXED: Direction-based animation for AI
+    if (Math.abs(move.x) > Math.abs(move.y)) {
+      ai.frameY = move.x > 0 ? 2 : 1; // right or left
+    } else if (Math.abs(move.y) > 0.1) {
+      ai.frameY = move.y > 0 ? 0 : 3; // down or up
+    }
+
     const isMoving = Math.abs(move.x) > 0.1 || Math.abs(move.y) > 0.1;
     animate(ai, npcColumns, isMoving);
   }
 
-  // tagging: everyone can get tagged
+  // tagging logic
   const touchRange = 40;
   for (const tagger of players.filter(p => p.isTagger)) {
     for (const runner of players.filter(p => !p.isTagger)) {
@@ -664,22 +654,17 @@ function update() {
       const dy = runner.y - tagger.y;
       const distance = Math.hypot(dx, dy);
       if (distance <= touchRange && tagger.flashTimer <= 0) {
-        // runner becomes tagger
         runner.isTagger = true;
         runner.flashTimer = 10;
       }
     }
   }
 
-  // check game over (all tagged)
+  // game over check
   if (players.every(p => p.isTagger)) {
     gameOver = true;
-    if (gameOverModal) {
-      gameOverModal.style.visibility = "visible";
-    } else {
-      // fallback
-      alert("Everyone is tagged! Game over!");
-    }
+    if (gameOverModal) gameOverModal.style.visibility = "visible";
+    else alert("Everyone is tagged! Game over!");
   }
 }
 
@@ -713,7 +698,7 @@ function draw() {
       p.x, p.y, p.w, p.h);
     ctx.globalAlpha = 1.0;
 
-    if (p.isTagger) drawArrowAbovePlayer(p); // only arrow indicator
+    if (p.isTagger) drawArrowAbovePlayer(p);
   }
 }
 
@@ -723,53 +708,30 @@ function loop() {
   if (!gameOver) requestAnimationFrame(loop);
 }
 
-// settings modal / controls
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsModal = document.getElementById("settingsModal");
-const changeCharacterBtn = document.getElementById("changeCharacterBtn");
-const quitBtn = document.getElementById("quitBtn");
-
-if (settingsBtn) settingsBtn.addEventListener("click", () => settingsModal.style.visibility = "visible");
-if (settingsModal) settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) settingsModal.style.visibility = "hidden"; });
-
-if (changeCharacterBtn) changeCharacterBtn.addEventListener("click", () => {
-  const currentMap = localStorage.getItem("selectedMap") || selectedMap;
-  window.location.href = "characters.html?map=" + encodeURIComponent(currentMap);
-});
-if (quitBtn) quitBtn.addEventListener("click", () => {
-  window.location.href = "index.html";
-});
-
-const restartBtn = document.getElementById("restartBtn");
-if (restartBtn) restartBtn.addEventListener("click", () => resetGame());
-
-window.addEventListener("DOMContentLoaded", () => {
-
 // === MOBILE CONTROLS ===
-const mobileControls = document.getElementById("mobileControls");
-const buttons = document.querySelectorAll(".control-btn");
-
-buttons.forEach(btn => {
-  btn.addEventListener("touchstart", e => {
-    e.preventDefault();
-    const dir = btn.dataset.dir;
-    if (dir === "up") keys["w"] = true;
-    if (dir === "down") keys["s"] = true;
-    if (dir === "left") keys["a"] = true;
-    if (dir === "right") keys["d"] = true;
+window.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".control-btn");
+  buttons.forEach(btn => {
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      const dir = btn.dataset.dir;
+      if (dir === "up") keys["w"] = true;
+      if (dir === "down") keys["s"] = true;
+      if (dir === "left") keys["a"] = true;
+      if (dir === "right") keys["d"] = true;
+    });
+    btn.addEventListener("touchend", e => {
+      e.preventDefault();
+      const dir = btn.dataset.dir;
+      if (dir === "up") keys["w"] = false;
+      if (dir === "down") keys["s"] = false;
+      if (dir === "left") keys["a"] = false;
+      if (dir === "right") keys["d"] = false;
+    });
   });
-
-  btn.addEventListener("touchend", e => {
-    e.preventDefault();
-    const dir = btn.dataset.dir;
-    if (dir === "up") keys["w"] = false;
-    if (dir === "down") keys["s"] = false;
-    if (dir === "left") keys["a"] = false;
-    if (dir === "right") keys["d"] = false;
-  });
-});
 });
 </script>
+
 
 </body>
 </html>
