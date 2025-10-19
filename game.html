@@ -753,14 +753,17 @@ function update() {
 
   const p1 = players[0];
   let moved = false;
+
+  // === HUMAN MOVEMENT ===
   if (keys["w"]) { p1.y -= playerSpeed; p1.frameY = 3; p1.lastDir = 3; moved = true; }
   if (keys["s"]) { p1.y += playerSpeed; p1.frameY = 0; p1.lastDir = 0; moved = true; }
   if (keys["a"]) { p1.x -= playerSpeed; p1.frameY = 1; p1.lastDir = 1; moved = true; }
   if (keys["d"]) { p1.x += playerSpeed; p1.frameY = 2; p1.lastDir = 2; moved = true; }
+
   animate(p1, playerColumns, moved);
   clampToPlayArea(p1);
 
-  // AI movement
+  // === AI MOVEMENT ===
   for (let i = 1; i < players.length; i++) {
     const ai = players[i];
     const aiC = centerOf(ai);
@@ -782,6 +785,7 @@ function update() {
       }
     }
 
+    // === AI Behavior ===
     if (ai.isTagger && nearestRunner) {
       const dir = normalize(nearestRunner.x - ai.x, nearestRunner.y - ai.y);
       move.x += dir.x * aiChaseSpeed;
@@ -791,6 +795,7 @@ function update() {
       move.x += dir.x * aiRunSpeed;
       move.y += dir.y * aiRunSpeed;
     } else {
+      // Wander mode
       ai.wanderTimer--;
       if (ai.wanderTimer <= 0) {
         ai.wanderTimer = 60 + Math.random() * 60;
@@ -800,7 +805,7 @@ function update() {
       move.y += ai.wanderDir.y * aiWanderSpeed;
     }
 
-    // separation
+    // === AVOID COLLISIONS ===
     for (const other of players) {
       if (ai === other) continue;
       const dx = ai.x - other.x;
@@ -812,15 +817,32 @@ function update() {
       }
     }
 
+    // === APPLY MOVEMENT ===
     ai.x += move.x;
     ai.y += move.y;
     clampToPlayArea(ai);
 
-    const isMoving = Math.abs(move.x) > 0.1 || Math.abs(move.y) > 0.1;
+    // === SMOOTH SPRITE DIRECTION ===
+    const isMoving = Math.abs(move.x) > 0.2 || Math.abs(move.y) > 0.2;
+    if (isMoving) {
+      // Determine direction
+      if (Math.abs(move.x) > Math.abs(move.y)) {
+        ai.frameY = move.x > 0 ? 2 : 1; // right : left
+        ai.lastDir = ai.frameY;
+      } else {
+        ai.frameY = move.y > 0 ? 0 : 3; // down : up
+        ai.lastDir = ai.frameY;
+      }
+    } else {
+      // Idle — stay facing last direction
+      ai.frameY = ai.lastDir || 0;
+      ai.frameX = 0;
+    }
+
     animate(ai, npcColumns, isMoving);
   }
 
-  // tagging: everyone can get tagged
+  // === TAGGING ===
   const touchRange = 40;
   for (const tagger of players.filter(p => p.isTagger)) {
     for (const runner of players.filter(p => !p.isTagger)) {
@@ -828,20 +850,18 @@ function update() {
       const dy = runner.y - tagger.y;
       const distance = Math.hypot(dx, dy);
       if (distance <= touchRange && tagger.flashTimer <= 0) {
-        // runner becomes tagger
         runner.isTagger = true;
         runner.flashTimer = 10;
       }
     }
   }
 
-  // check game over (all tagged)
+  // === GAME OVER ===
   if (players.every(p => p.isTagger)) {
     gameOver = true;
     if (gameOverModal) {
       gameOverModal.style.visibility = "visible";
     } else {
-      // fallback
       alert("Everyone is tagged! Game over!");
     }
   }
